@@ -7,22 +7,25 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.rest_service.dtos.UserDto;
+import com.example.rest_service.mappers.UserMapper;
 import com.example.rest_service.repositories.UserRepository;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
+        this.userMapper = userMapper;
     }
 
     @GetMapping
     public Iterable<UserDto> getAllUsers() {
         return userRepository.findAll()
             .stream()
-            .map(user -> new UserDto(user.getId(), user.getName(), user.getEmail()))
+            .map(user -> userMapper.toDto(user))
             .toList();
     }
 
@@ -32,7 +35,6 @@ public class UserController {
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
-        var userDto = new UserDto(user.getId(), user.getName(), user.getEmail());
-        return ResponseEntity.ok(userDto);
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 }
