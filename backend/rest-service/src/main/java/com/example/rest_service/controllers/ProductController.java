@@ -31,10 +31,10 @@ public class ProductController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDto> getProduct(@PathVariable Long id) {
-        var Product = productRepository.findById(id).orElse(null);
-        if (Product == null) {
+        var product = productRepository.findById(id).orElse(null);
+        if (product == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(productMapper.toDto(Product));
+        return ResponseEntity.ok(productMapper.toDto(product));
     }
 }
