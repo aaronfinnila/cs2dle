@@ -7,9 +7,9 @@ public class ProductDto {
     private String name;
     private String description;
     private BigDecimal price;
-    private Long categoryId;
+    private Byte categoryId;
 
-    public ProductDto(Long id, String name, String description, BigDecimal price, Long categoryId) {
+    public ProductDto(Long id, String name, String description, BigDecimal price, Byte categoryId) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -49,11 +49,11 @@ public class ProductDto {
         this.price = price;
     }
 
-    public Long getCategoryId() {
+    public Byte getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(Long categoryId) {
+    public void setCategoryId(Byte categoryId) {
         this.categoryId = categoryId;
     }
 }
