@@ -1,14 +1,16 @@
 package com.example.rest_service.dtos;
 
 public class UpdateUserRequest {
-    public String name;
-    public String email;
+    private String name;
+    private String email;
+    private Integer age;
 
-    public UpdateUserRequest(String name, String email) {
+    public UpdateUserRequest(String name, String email, Integer age) {
         this.name = name;
         this.email = email;
+        this.age = age;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -23,5 +25,13 @@ public class UpdateUserRequest {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
     }
 }
