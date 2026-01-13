@@ -1,15 +1,24 @@
+import { useEffect, useState } from 'react'
+
 function App() {
+  const [userName, setUserName] = useState('')
+
+  type User = {
+    name: string
+  }
+
+  useEffect(() => {
+    fetch('/api/users/1')
+      .then(res => res.json())
+      .then((data: User) => setUserName(data.name))
+      .catch(err => console.error(err))
+  }, [])
 
   return (
-    <>
-    <body className="bg-gray-500 min-h-screen">
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-white flex items-center justify-center">
-          Hello there!
-        </div>
-      </div>
-    </body>
-    </>
+    <div>
+      <h1>User name:</h1>
+      <p>{userName}</p>
+    </div>
   )
 }
 
