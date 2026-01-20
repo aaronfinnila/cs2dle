@@ -1,6 +1,9 @@
 package com.example.rest_service.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+import java.util.List;
 
 @Entity
 @Table(name = "players")
@@ -13,11 +16,13 @@ public class Player {
     private String birth_date;
     private String team;
     
+    @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(columnDefinition = "text[]")
-    private String[] team_history;
+    private List<String> team_history;
     
+    @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(columnDefinition = "text[]")
-    private String[] team_images;
+    private List<String> team_images;
 
     public Long getId() {
         return id;
@@ -59,19 +64,19 @@ public class Player {
         this.team = team;
     }
 
-    public String[] getTeam_history() {
+    public List<String> getTeam_history() {
         return team_history;
     }
 
-    public void setTeam_history(String[] team_history) {
+    public void setTeam_history(List<String> team_history) {
         this.team_history = team_history;
     }
 
-    public String[] getTeam_images() {
+    public List<String> getTeam_images() {
         return team_images;
     }
 
-    public void setTeam_images(String[] team_images) {
+    public void setTeam_images(List<String> team_images) {
         this.team_images = team_images;
     }
 }
