@@ -5,13 +5,13 @@ import java.util.List;
 public class PlayerDto {
     private Long id;
     private String name;
-    private float rating;
+    private Float rating;
     private String birth_date;
     private String team;
     private List<String> team_history;
     private List<String> team_images;
 
-    public PlayerDto(Long id, String name, float rating, String birth_date, String team, List<String> team_history, List<String> team_images) {
+    public PlayerDto(Long id, String name, Float rating, String birth_date, String team, List<String> team_history, List<String> team_images) {
         this.id = id;
         this.name = name;
         this.rating = rating;
@@ -37,11 +37,11 @@ public class PlayerDto {
         this.name = name;
     }
 
-    public float getRating() {
+    public Float getRating() {
         return rating;
     }
 
-    public void setRating(float rating) {
+    public void setRating(Float rating) {
         this.rating = rating;
     }
 

@@ -1,8 +1,10 @@
 package com.example.rest_service.entities;
 
 import jakarta.persistence.*;
+
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+
 import java.util.List;
 
 @Entity
@@ -12,16 +14,17 @@ public class Player {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
-    private float rating;
+    @Column(nullable = true)
+    private Float rating;
     private String birth_date;
     private String team;
     
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    @Column(columnDefinition = "text[]")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "team_history", columnDefinition = "jsonb")
     private List<String> team_history;
     
-    @JdbcTypeCode(SqlTypes.ARRAY)
-    @Column(columnDefinition = "text[]")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "team_images", columnDefinition = "jsonb")
     private List<String> team_images;
 
     public Long getId() {
@@ -40,11 +43,11 @@ public class Player {
         this.name = name;
     }
 
-    public float getRating() {
+    public Float getRating() {
         return rating;
     }
 
-    public void setRating(float rating) {
+    public void setRating(Float rating) {
         this.rating = rating;
     }
 
