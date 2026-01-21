@@ -1,23 +1,27 @@
 import { useEffect, useState } from 'react'
 
 function App() {
-  const [userName, setUserName] = useState('')
+  const [playerName, setPlayerName] = useState('')
 
-  type User = {
-    name: string
+  type Player = {
+    name: string,
+    image: string
   }
 
   useEffect(() => {
-    fetch('/api/users/1')
+    fetch('/api/players/6')
       .then(res => res.json())
-      .then((data: User) => setUserName(data.name))
+      .then((data: Player) => {
+        setPlayerName(data.name)
+        setPlayerImageUrl(data.image)})
       .catch(err => console.error(err))
   }, [])
 
   return (
     <div>
-      <h1>User name:</h1>
-      <p>{userName}</p>
+      <h1>Player name:</h1>
+      <p>{playerName}</p>
+      <img src={`/api/players/${playerId}/image`}></img>
     </div>
   )
 }

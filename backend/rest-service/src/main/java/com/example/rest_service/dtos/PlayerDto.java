@@ -8,15 +8,17 @@ public class PlayerDto {
     private Float rating;
     private String birth_date;
     private String team;
+    private String image;
     private List<String> team_history;
     private List<String> team_images;
 
-    public PlayerDto(Long id, String name, Float rating, String birth_date, String team, List<String> team_history, List<String> team_images) {
+    public PlayerDto(Long id, String name, Float rating, String birth_date, String team, String image, List<String> team_history, List<String> team_images) {
         this.id = id;
         this.name = name;
         this.rating = rating;
         this.birth_date = birth_date;
         this.team = team;
+        this.image = image;
         this.team_history = team_history;
         this.team_images = team_images;
     }
@@ -59,6 +61,14 @@ public class PlayerDto {
 
     public void setTeam(String team) {
         this.team = team;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public List<String> getTeam_history() {

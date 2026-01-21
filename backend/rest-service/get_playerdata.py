@@ -7,7 +7,7 @@ import psycopg2
 from psycopg2.extras import Json
 import os
 
-players = ["Aleksib", "makazze", "w0nderful", "iM"]
+players = ["b1t"]
 
 API_URL = "https://liquipedia.net/counterstrike/api.php"
 
@@ -37,12 +37,13 @@ def parse_infobox(wikitext):
         "country": None,
         "birth_date": None,
         "team": None,
+        "image": None,
         "team_history": []
     }
     
     for t in templates:
         if t.name.matches("Infobox player") or t.name.matches("Infobox Player"):
-            for field in ["country", "birth_date", "team"]:
+            for field in ["country", "birth_date", "team", "image"]:
                 if t.has(field):
                     info[field] = str(t.get(field).value).strip()
                 if t.has("team_history"):
@@ -72,7 +73,7 @@ def fetch_team_image(team_name):
         if t.name.matches("Infobox team") or t.name.matches("Infobox Team"):
             if t.has("image"):
                 image_filename = str(t.get("image").value).strip()
-                
+
                 image_filename = image_filename.replace("File:", "").strip()
                 params = {
                     "action": "query",
@@ -84,7 +85,7 @@ def fetch_team_image(team_name):
                 response = requests.get(API_URL, params=params, headers=HEADERS)
                 response.raise_for_status()
                 data = response.json()
-                
+
                 pages = data.get("query", {}).get("pages", {})
                 page_data = next(iter(pages.values()), {})
                 if "imageinfo" in page_data:
@@ -108,6 +109,27 @@ def clean_teams(teams):
 def fetch_player_data(player_name):
     wikitext = fetch_player_wikitext(player_name)
     info = parse_infobox(wikitext)
+
+    player_image = None
+    if info.get("image"):
+        image_filename = str(info.get("image")).strip()
+        image_filename = image_filename.replace("File:", "").strip()
+        params = {
+            "action": "query",
+            "titles": f"File:{image_filename}",
+            "prop": "imageinfo",
+            "iiprop": "url",
+            "format": "json"
+        }
+        response = requests.get(API_URL, params=params, headers=HEADERS)
+        response.raise_for_status()
+        data = response.json()
+
+        pages = data.get("query", {}).get("pages", {})
+        page_data = next(iter(pages.values()), {})
+        if "imageinfo" in page_data:
+            player_image = page_data["imageinfo"][0].get("url")
+
     team_images = []
     team_history = clean_teams(info["team_history"])
     for team in team_history:
@@ -121,6 +143,7 @@ def fetch_player_data(player_name):
         "country": info["country"],
         "birth_date": info["birth_date"],
         "team": info["team"],
+        "image": player_image,
         "team_history": team_history,
         "team_images": team_images
     }
@@ -156,13 +179,14 @@ try:
     
     for player_data in all_players_data:
         cursor.execute("""
-            INSERT INTO players (name, country, birth_date, team, team_history, team_images)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO players (name, country, birth_date, team, image, team_history, team_images)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             ON CONFLICT (name) 
             DO UPDATE SET 
                 country = EXCLUDED.country,
                 birth_date = EXCLUDED.birth_date,
                 team = EXCLUDED.team,
+                image = EXCLUDED.image,
                 team_history = EXCLUDED.team_history,
                 team_images = EXCLUDED.team_images,
                 updated_at = CURRENT_TIMESTAMP
@@ -171,6 +195,7 @@ try:
             player_data["country"],
             player_data["birth_date"],
             player_data["team"],
+            player_data["image"],
             Json(player_data["team_history"]),
             Json(player_data["team_images"])
         ))

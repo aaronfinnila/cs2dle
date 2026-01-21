@@ -18,6 +18,7 @@ public class Player {
     private Float rating;
     private String birth_date;
     private String team;
+    private String image;
     
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "team_history", columnDefinition = "jsonb")
@@ -65,6 +66,14 @@ public class Player {
 
     public void setTeam(String team) {
         this.team = team;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public List<String> getTeam_history() {

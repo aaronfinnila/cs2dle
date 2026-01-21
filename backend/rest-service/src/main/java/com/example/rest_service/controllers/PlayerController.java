@@ -5,8 +5,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.example.rest_service.dtos.PlayerDto;
+import com.example.rest_service.entities.Player;
 import com.example.rest_service.mappers.PlayerMapper;
 import com.example.rest_service.repositories.PlayerRepository;
 
@@ -37,4 +39,17 @@ public class PlayerController {
         }
         return ResponseEntity.ok(playerMapper.toDto(player));
     }
+
+    @GetMapping("/api/players/{id}/image")
+    public ResponseEntity<byte[]> getPlayerImage(@PathVariable Long id) {
+        Player player = playerRepository.findById(id).orElseThrow();
+        
+        // Fetch image from Liquipedia
+        RestTemplate restTemplate = new RestTemplate();
+        byte[] imageBytes = restTemplate.getForObject(player.getImageUrl(), byte[].class);
+        
+        return ResponseEntity.ok()
+            .contentType(MediaType.IMAGE_PNG)
+            .body(imageBytes);
+}
 }
