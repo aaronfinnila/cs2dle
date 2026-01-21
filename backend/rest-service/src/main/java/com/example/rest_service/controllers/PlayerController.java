@@ -1,5 +1,6 @@
 package com.example.rest_service.controllers;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,16 +41,15 @@ public class PlayerController {
         return ResponseEntity.ok(playerMapper.toDto(player));
     }
 
-    @GetMapping("/api/players/{id}/image")
+    @GetMapping("/{id}/image")
     public ResponseEntity<byte[]> getPlayerImage(@PathVariable Long id) {
         Player player = playerRepository.findById(id).orElseThrow();
         
-        // Fetch image from Liquipedia
         RestTemplate restTemplate = new RestTemplate();
-        byte[] imageBytes = restTemplate.getForObject(player.getImageUrl(), byte[].class);
+        byte[] imageBytes = restTemplate.getForObject(player.getImage(), byte[].class);
         
         return ResponseEntity.ok()
             .contentType(MediaType.IMAGE_PNG)
             .body(imageBytes);
-}
+    }
 }

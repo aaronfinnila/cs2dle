@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 
 function App() {
   const [playerName, setPlayerName] = useState('')
+  const [playerId, setPlayerId] = useState(0)
 
   type Player = {
     name: string,
-    image: string
+    id: number
   }
 
   useEffect(() => {
@@ -13,14 +14,13 @@ function App() {
       .then(res => res.json())
       .then((data: Player) => {
         setPlayerName(data.name)
-        setPlayerImageUrl(data.image)})
+        setPlayerId(data.id)})
       .catch(err => console.error(err))
   }, [])
 
   return (
     <div>
-      <h1>Player name:</h1>
-      <p>{playerName}</p>
+      <h1>Player name: {playerName}</h1>
       <img src={`/api/players/${playerId}/image`}></img>
     </div>
   )
