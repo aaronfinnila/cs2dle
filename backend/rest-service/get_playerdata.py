@@ -7,7 +7,7 @@ import psycopg2
 from psycopg2.extras import Json
 import os
 
-players = ["b1t"]
+players = ["Aleksib", "iM", "w0nderful", "makazze"]
 
 API_URL = "https://liquipedia.net/counterstrike/api.php"
 
