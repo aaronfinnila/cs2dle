@@ -45,17 +45,40 @@ public class PlayerController {
     @GetMapping("/{id}/image")
     public ResponseEntity<byte[]> getPlayerImage(@PathVariable Long id) {
         Player player = playerRepository.findById(id).orElseThrow();
-        
+        if (player == null) {
+            return ResponseEntity.notFound().build();
+        }
         RestTemplate restTemplate = new RestTemplate();
         byte[] imageBytes = restTemplate.getForObject(player.getImage(), byte[].class);
-        
+        return ResponseEntity.ok()
+            .contentType(MediaType.IMAGE_PNG)
+            .body(imageBytes);
+    }
+    
+    @GetMapping("/{id}/team_image")
+    public ResponseEntity<byte[]> getTeamImage(@PathVariable Long id) {
+        Player player = playerRepository.findById(id).orElseThrow();
+        if (player == null) {
+            return ResponseEntity.notFound().build();
+        }
+        RestTemplate restTemplate = new RestTemplate();
+        byte[] imageBytes = restTemplate.getForObject(player.getTeam_images().getLast(), byte[].class);
         return ResponseEntity.ok()
             .contentType(MediaType.IMAGE_PNG)
             .body(imageBytes);
     }
 
+    @GetMapping("/get_id/{name}")
+    public ResponseEntity<PlayerDto> getPlayerId(@PathVariable String name) {
+        Player player = playerRepository.findByName(name).orElseThrow();
+        if (player == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(playerMapper.toDto(player));
+    }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<PlayerDto> deletePlayer(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<PlayerDto> deletePlayer(@PathVariable Long id) {
         Player player = playerRepository.findById(id).orElse(null);
         if (player == null) {
             return ResponseEntity.notFound().build();

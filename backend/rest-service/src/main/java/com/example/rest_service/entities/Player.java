@@ -14,6 +14,7 @@ public class Player {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    private String country;
     @Column(nullable = true)
     private Float rating;
     private String birth_date;
@@ -42,6 +43,14 @@ public class Player {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     public Float getRating() {

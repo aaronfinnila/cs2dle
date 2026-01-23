@@ -5,6 +5,7 @@ import java.util.List;
 public class PlayerDto {
     private Long id;
     private String name;
+    private String country;
     private Float rating;
     private String birth_date;
     private String team;
@@ -12,9 +13,10 @@ public class PlayerDto {
     private List<String> team_history;
     private List<String> team_images;
 
-    public PlayerDto(Long id, String name, Float rating, String birth_date, String team, String image, List<String> team_history, List<String> team_images) {
+    public PlayerDto(Long id, String name, String country, Float rating, String birth_date, String team, String image, List<String> team_history, List<String> team_images) {
         this.id = id;
         this.name = name;
+        this.country = country;
         this.rating = rating;
         this.birth_date = birth_date;
         this.team = team;
@@ -37,6 +39,14 @@ public class PlayerDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
     }
 
     public Float getRating() {
