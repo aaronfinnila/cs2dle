@@ -20,14 +20,18 @@ public class Player {
     private String birth_date;
     private String team;
     private String image;
-    
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "team_history", columnDefinition = "jsonb")
     private List<String> team_history;
-    
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "team_images", columnDefinition = "jsonb")
     private List<String> team_images;
+    
+    private String roles;
+    private Integer majors;
+    private Integer top20;
 
     public Long getId() {
         return id;
@@ -99,5 +103,29 @@ public class Player {
 
     public void setTeam_images(List<String> team_images) {
         this.team_images = team_images;
+    }
+
+    public String getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
+    }
+
+    public Integer getMajors() {
+        return majors;
+    }
+
+    public void setMajors(Integer majors) {
+        this.majors = majors;
+    }
+
+    public Integer getTop20() {
+        return top20;
+    }
+
+    public void setTop20(Integer top20) {
+        this.top20 = top20;
     }
 }

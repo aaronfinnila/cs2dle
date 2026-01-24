@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import Button from './Button'
 import silhouette from '/assets/silhouette.png'
 import countries from "i18n-iso-countries";
 import en from "i18n-iso-countries/langs/en.json";
@@ -12,14 +11,18 @@ function App() {
   const [playerAge, setPlayerAge] = useState(0)
   const [text, setText] = useState('')
   const prevText = useRef("")
+  const correctPlayerId = 13
 
   type Player = {
     name: string,
     id: number,
     country: string,
     team: string,
+    roles: string,
     birth_date: string,
-    team_images: string[]
+    team_images: string[],
+    majors: number,
+    top20: number
   }
 
   useEffect(() => {
@@ -43,12 +46,16 @@ function App() {
 
   const handleEnter = (e: any) => {
     if (e.key === "Enter") {
-      console.log("pressed enter")
+      let tempId: number = 0
       fetch(`/api/players/get_id/${text}`)
       .then(res => res.json())
       .then((data: Player) => {
-        setPlayerId(data.id)
-        console.log(data.id)
+        tempId = data.id
+        if (tempId === correctPlayerId) {
+          setPlayerId(tempId)
+        } else {
+          console.log(data.country + " " + data.name + " " + data.team + " " + data.roles + " majors: " + data.majors + " highest top20: " + data.top20)
+        }
       })
     }
   }
@@ -73,8 +80,6 @@ function App() {
         focus:ring-4 focus:ring-blue-100
         focus:outline-none
         transition"/>
-      <Button onClick={() => setPlayerId(id => id + 1)} text={"Next player"} />
-      <Button onClick={() => setPlayerId(id => id - 1)} text={"Last player"} />
     </div>
   )
 }
@@ -109,8 +114,19 @@ function calculate_age(birthdate: string): number {
   let day: number = Number(birthdate.substring(8, 10))
 
   let dateTime = new Date()
-  let age: number = dateTime.getFullYear() - year
+  let age: number = 0
 
+  if (month < dateTime.getMonth()+1) {
+    age = dateTime.getFullYear() - year
+  } else if (month > dateTime.getMonth()+1) {
+    age = dateTime.getFullYear() - (year+1)
+  } else {
+    if (dateTime.getDate() > day) {
+      age = dateTime.getFullYear() - year
+    } else {
+      age = dateTime.getFullYear() - (year+1)
+    }
+  }
   return age
 }
 

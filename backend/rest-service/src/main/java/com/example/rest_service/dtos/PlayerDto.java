@@ -12,8 +12,14 @@ public class PlayerDto {
     private String image;
     private List<String> team_history;
     private List<String> team_images;
+    private String roles;
+    private Integer majors;
+    private Integer top20;
 
-    public PlayerDto(Long id, String name, String country, Float rating, String birth_date, String team, String image, List<String> team_history, List<String> team_images) {
+    public PlayerDto() {
+    }
+
+    public PlayerDto(Long id, String name, String country, Float rating, String birth_date, String team, String image, List<String> team_history, List<String> team_images, String roles, Integer majors, Integer top20) {
         this.id = id;
         this.name = name;
         this.country = country;
@@ -23,6 +29,9 @@ public class PlayerDto {
         this.image = image;
         this.team_history = team_history;
         this.team_images = team_images;
+        this.roles = roles;
+        this.majors = majors;
+        this.top20 = top20;
     }
 
     public Long getId() {
@@ -95,5 +104,29 @@ public class PlayerDto {
 
     public void setTeam_images(List<String> team_images) {
         this.team_images = team_images;
+    }
+
+    public String getRoles() {
+        return roles;
+    }
+
+    public void setRoles(String roles) {
+        this.roles = roles;
+    }
+
+    public Integer getMajors() {
+        return majors;
+    }
+
+    public void setMajors(Integer majors) {
+        this.majors = majors;
+    }
+
+    public Integer getTop20() {
+        return top20;
+    }
+
+    public void setTop20(Integer top20) {
+        this.top20 = top20;
     }
 }

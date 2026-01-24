@@ -4,6 +4,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -74,6 +75,19 @@ public class PlayerController {
         if (player == null) {
             return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok(playerMapper.toDto(player));
+    }
+
+    @PatchMapping("/{name}/{rating}_{majors}_{top20}")
+    public ResponseEntity<PlayerDto> getPlayerId(@PathVariable String name, @PathVariable Float rating, @PathVariable Integer majors, @PathVariable Integer top20) {
+        Player player = playerRepository.findByName(name).orElseThrow();
+        if (player == null) {
+            return ResponseEntity.notFound().build();
+        }
+        player.setRating(rating);
+        player.setMajors(majors);
+        player.setTop20(top20);
+        playerRepository.save(player);
         return ResponseEntity.ok(playerMapper.toDto(player));
     }
 
