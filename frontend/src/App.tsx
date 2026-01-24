@@ -10,6 +10,7 @@ function App() {
   const [playerTeam, setPlayerTeam] = useState('')
   const [playerAge, setPlayerAge] = useState(0)
   const [text, setText] = useState('')
+  const [playerGuesses, setPlayerGuesses] = useState<Player[]>([])
   const prevText = useRef("")
   const correctPlayerId = 13
 
@@ -19,6 +20,7 @@ function App() {
     country: string,
     team: string,
     roles: string,
+    rating: number,
     birth_date: string,
     team_images: string[],
     majors: number,
@@ -39,7 +41,7 @@ function App() {
       .catch(err => console.error(err))
   }, [playerId])
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: any) => {5
     prevText.current = text
     setText(e.target.value)
   }
@@ -50,11 +52,10 @@ function App() {
       fetch(`/api/players/get_id/${text}`)
       .then(res => res.json())
       .then((data: Player) => {
-        tempId = data.id
-        if (tempId === correctPlayerId) {
-          setPlayerId(tempId)
+        if (data.id === correctPlayerId) {
+          setPlayerId(data.id)
         } else {
-          console.log(data.country + " " + data.name + " " + data.team + " " + data.roles + " majors: " + data.majors + " highest top20: " + data.top20)
+          setPlayerGuesses(prev => [...prev, data])
         }
       })
     }
@@ -66,7 +67,7 @@ function App() {
       <h1 className="text-center">{playerName}</h1>
       <h1 className="text-center">{getPlayerAge(playerAge)}</h1>
       <h1 className="text-center">{countryNameToFlag(playerCountry)}</h1>
-      <img className="block mx-auto h-24 w-48 object-scale-down" src={getTeamImage(playerId)} alt={playerName}/>
+      {getTeamImage(playerId) && <img className="block mx-auto h-24 w-48 object-scale-down" src={getTeamImage(playerId)} alt={playerName}/>}
       <input type="text" value={text} onChange={handleChange} onKeyDown={handleEnter} placeholder="Insert player name" className="
         w-52
         block mx-auto
@@ -80,7 +81,14 @@ function App() {
         focus:ring-4 focus:ring-blue-100
         focus:outline-none
         transition"/>
-    </div>
+        <div>
+          {playerGuesses.map(guess => (
+            <div key={guess.id} className="box">
+              {guess.name} {countryNameToFlag(guess.country)} {guess.roles} {guess.rating} {guess.team} {guess.top20} {guess.majors} {calculate_age(guess.birth_date)}
+              </div>
+          ))}
+          </div>
+      </div>
   )
 }
 
@@ -94,7 +102,7 @@ function getPlayerImage(id: number): string {
 
 function getTeamImage(id: number): any {
   if (id === 0) {
-    return null
+    return undefined
   } else {
     return `/api/players/${id}/team_image`
   }
