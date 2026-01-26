@@ -9,8 +9,13 @@ function App() {
   const [playerCountry, setPlayerCountry] = useState('')
   const [playerTeam, setPlayerTeam] = useState('')
   const [playerAge, setPlayerAge] = useState(0)
+  const [playerRoles, setPlayerRoles] = useState('')
+  const [playerRating, setPlayerRating] = useState(0)
+  const [playerTop20, setPlayerTop20] = useState(0)
+  const [playerMajors, setPlayerMajors] = useState(0)
   const [text, setText] = useState('')
   const [playerGuesses, setPlayerGuesses] = useState<Player[]>([])
+  const [correctGuessed, setCorrectGuessed] = useState(false)
   const prevText = useRef("")
   const correctPlayerId = 13
 
@@ -28,7 +33,7 @@ function App() {
   }
 
   useEffect(() => {
-    if (!playerId) return
+    if (!correctGuessed) return
     fetch(`/api/players/${playerId}`)
       .then(res => res.json())
       .then((data: Player) => {
@@ -37,6 +42,10 @@ function App() {
         setPlayerCountry(data.country)
         setPlayerTeam(data.team)
         setPlayerAge(calculate_age(data.birth_date))
+        setPlayerRoles(data.roles)
+        setPlayerRating(data.rating)
+        setPlayerTop20(data.top20)
+        setPlayerMajors(data.majors)
       })
       .catch(err => console.error(err))
   }, [playerId])
@@ -47,13 +56,13 @@ function App() {
   }
 
   const handleEnter = (e: any) => {
+    setPlayerId(correctPlayerId)
     if (e.key === "Enter") {
-      let tempId: number = 0
       fetch(`/api/players/get_id/${text}`)
       .then(res => res.json())
       .then((data: Player) => {
         if (data.id === correctPlayerId) {
-          setPlayerId(data.id)
+          setCorrectGuessed(true)
         } else {
           setPlayerGuesses(prev => [...prev, data])
         }
@@ -63,13 +72,13 @@ function App() {
 
   return (
     <div>
-      <img className="block mx-auto" src={getPlayerImage(playerId)} alt={playerName}/>
+      <img className="block mx-auto w-112 h-96" src={`${correctGuessed ? getPlayerImage(playerId) : silhouette}`} alt={playerName}/>
       <h1 className="text-center">{playerName}</h1>
       <h1 className="text-center">{getPlayerAge(playerAge)}</h1>
       <h1 className="text-center">{countryNameToFlag(playerCountry)}</h1>
-      {getTeamImage(playerId) && <img className="block mx-auto h-24 w-48 object-scale-down" src={getTeamImage(playerId)} alt={playerName}/>}
-      <input type="text" value={text} onChange={handleChange} onKeyDown={handleEnter} placeholder="Insert player name" className="
+      <input autoFocus type="text" value={text} onChange={handleChange} onKeyDown={handleEnter} placeholder="Insert player name" className="
         w-52
+        mt-6
         block mx-auto
         border-2 border-black-200
         bg-white
@@ -78,13 +87,20 @@ function App() {
         text-gray-900
         placeholder-gray-400
         shadow-md
-        focus:ring-4 focus:ring-blue-100
         focus:outline-none
         transition"/>
         <div>
           {playerGuesses.map(guess => (
-            <div key={guess.id} className="box">
-              {guess.name} {countryNameToFlag(guess.country)} {guess.roles} {guess.rating} {guess.team} {guess.top20} {guess.majors} {calculate_age(guess.birth_date)}
+            <div key={guess.id} className="flex gap-4 mt-6 justify-center items-center text-2xl">
+              <img className="h-24 w-48 object-scale-down" src={getPlayerImage(guess.id)}/>
+              {guess.name}
+              <span className={`${guess.country === playerCountry ? "bg-green-300" : "bg-red-300"}`}>{countryNameToFlag(guess.country)}</span>
+              <span className={`${guess.roles === playerRoles ? "bg-green-300" : "bg-red-300"}`}>{guess.roles}</span>
+              <span className={`${guess.rating > playerRating ? "bg-green-300" : "bg-red-300"}`}>{guess.rating}</span>
+              <span className={`${guess.team === playerTeam ? "bg-green-300" : "bg-red-300"}`}>{guess.team}</span>
+              <span className={`${guess.top20 > playerTop20 ? "bg-green-300" : "bg-red-300"}`}>{guess.top20}</span>
+              <span className={`${guess.majors < playerMajors ? "bg-green-300" : "bg-red-300"}`}>{guess.majors}</span>
+              <span className={`${calculate_age(guess.birth_date) < playerAge ? "bg-green-300" : "bg-red-300"}`}>{calculate_age(guess.birth_date)}</span>
               </div>
           ))}
           </div>
