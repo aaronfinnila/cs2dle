@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.18",
+    "crypto": "^1.0.1",
     "esbuild": "^0.27.2",
     "i18n-iso-countries": "^7.14.0",
     "react": "^19.2.0",
