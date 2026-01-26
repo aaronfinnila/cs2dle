@@ -17,7 +17,8 @@ function App() {
   const [playerGuesses, setPlayerGuesses] = useState<Player[]>([])
   const [correctGuessed, setCorrectGuessed] = useState(false)
   const prevText = useRef("")
-  const correctPlayerId = Math.floor(Math.random() * (110))
+  const rollPlayerId = () => Math.floor(Math.random() * 110)
+  const [correctPlayerId] = useState(rollPlayerId)
 
   type Player = {
     name: string,
@@ -53,7 +54,11 @@ function App() {
     useEffect(() => {
     if (!playerId) return
     fetch(`/api/players/${playerId}`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          setPlayerId(rollPlayerId)
+        }
+      return res.json()})
       .then((data: Player) => {
         setPlayerName(data.name)
         setPlayerId(data.id)
@@ -80,7 +85,6 @@ function App() {
       .then(res => res.json())
       .then((data: Player) => {
         if (data.id === correctPlayerId) {
-          setPlayerGuesses(prev => [...prev, data])
           setCorrectGuessed(true)
         } else {
           setPlayerGuesses(prev => [...prev, data])
@@ -135,7 +139,7 @@ function App() {
                 <img className="max-h-24 max-w-[80%] object-contain" src={getTeamImage(guess.id)} alt={guess.team} />
               </div>
               <div className={`w-16 h-full flex flex-col items-center justify-center shrink-0 ${guess.top20 === playerTop20 ? "bg-green-300" : "bg-red-300"}`}>
-                <span>{getPlayerTop20(guess.top20, playerTop20)}</span>
+                <span>{getPlayerTop20(guess.top20)}</span>
                 <span>{getTop20Arrows(guess.top20, playerTop20)}</span>
               </div>
               <div className={`w-16 h-full flex flex-col items-center justify-center shrink-0 ${guess.majors === playerMajors ? "bg-green-300" : "bg-red-300"}`}>
@@ -153,8 +157,8 @@ function App() {
   )
 }
 
-function getPlayerTop20(guessTop20: number, correctTop20: number): string {
-  if (guessTop20 === 0 && correctTop20 === 0) {
+function getPlayerTop20(guessTop20: number): string {
+  if (guessTop20 === 0) {
     return "N/A"
   } else return `${guessTop20}`
 }
