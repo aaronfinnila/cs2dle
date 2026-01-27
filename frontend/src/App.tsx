@@ -13,6 +13,7 @@ function App() {
   const [playerRating, setPlayerRating] = useState(0)
   const [playerTop20, setPlayerTop20] = useState(0)
   const [playerMajors, setPlayerMajors] = useState(0)
+  const [playerTeamHistory, setPlayerTeamHistory] = useState<string[]>([])
   const [text, setText] = useState('')
   const [playerGuesses, setPlayerGuesses] = useState<Player[]>([])
   const [correctGuessed, setCorrectGuessed] = useState(false)
@@ -29,6 +30,7 @@ function App() {
     rating: number,
     birth_date: string,
     team_images: string[],
+    team_history: string[]
     majors: number,
     top20: number
   }
@@ -47,6 +49,7 @@ function App() {
         setPlayerRating(data.rating)
         setPlayerTop20(data.top20)
         setPlayerMajors(data.majors)
+        setPlayerTeamHistory(data.team_history)
       })
       .catch(err => console.error(err))
   }, [playerId])
@@ -79,10 +82,14 @@ function App() {
   }
 
   const handleEnter = (e: any) => {
-    setPlayerId(correctPlayerId)
     if (e.key === "Enter") {
+      setPlayerId(correctPlayerId)
       fetch(`/api/players/get_id/${text}`)
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) {
+          alert("Player not found")
+        }
+      return res.json()})
       .then((data: Player) => {
         if (data.id === correctPlayerId) {
           setCorrectGuessed(true)
@@ -95,7 +102,7 @@ function App() {
 
   return (
     <div>
-      <img className="block mx-auto w-150 h-96 object-fill" src={`${correctGuessed ? getPlayerImage(playerId) : silhouette}`} alt={playerName}/>
+      <img className="block mx-auto w-150 h-96 object-fill" src={`${correctGuessed ? getPlayerImage(playerId) : silhouette}`}/>
       <h1 className="text-center">{correctGuessed ? playerName : null}</h1>
       <h1 className="text-center">{correctGuessed ? getPlayerAge(playerAge) + " years old" : null}</h1>
       <h1 className="text-center">{correctGuessed ? countryNameToFlag(playerCountry) : null}</h1>
@@ -135,7 +142,7 @@ function App() {
                 <span>{guess.rating}</span>
                 {guess.rating !== playerRating && <span>{guess.rating < playerRating ? "↑" : "↓"}</span>}
               </div>
-              <div className={`w-32 h-full flex items-center justify-center shrink-0 ${guess.team === playerTeam ? "bg-green-300" : "bg-red-300"}`}>
+              <div className={`w-32 h-full flex items-center justify-center shrink-0 ${getTeamColor(playerTeamHistory, playerTeam, guess.team)}`}>
                 <img className="max-h-24 max-w-[80%] object-contain" src={getTeamImage(guess.id)} alt={guess.team} />
               </div>
               <div className={`w-16 h-full flex flex-col items-center justify-center shrink-0 ${guess.top20 === playerTop20 ? "bg-green-300" : "bg-red-300"}`}>
@@ -155,6 +162,17 @@ function App() {
           </div>
       </div>
   )
+}
+
+function getTeamColor(team_history: string[], correctTeam: string, guessTeam: string): string {
+  console.log(team_history)
+  if (guessTeam === correctTeam) {
+    return "bg-green-300"
+  } else if (team_history.includes(guessTeam)) {
+    return "bg-orange-300"
+  } else {
+    return "bg-red-300"
+  }
 }
 
 function getPlayerTop20(guessTop20: number): string {
