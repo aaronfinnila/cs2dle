@@ -30,7 +30,7 @@ function App() {
     rating: number,
     birth_date: string,
     team_images: string[],
-    team_history: string[]
+    team_history: string[],
     majors: number,
     top20: number
   }
@@ -48,9 +48,7 @@ function App() {
         setPlayerRoles(data.roles)
         setPlayerRating(data.rating)
         setPlayerTop20(data.top20)
-        setPlayerMajors(data.majors)
-        setPlayerTeamHistory(data.team_history)
-      })
+        setPlayerMajors(data.majors)      })
       .catch(err => console.error(err))
   }, [playerId])
 
@@ -72,6 +70,7 @@ function App() {
         setPlayerRating(data.rating)
         setPlayerTop20(data.top20)
         setPlayerMajors(data.majors)
+        setPlayerTeamHistory(data.team_history)
       })
       .catch(err => console.error(err))
   }, [playerId])
@@ -165,7 +164,6 @@ function App() {
 }
 
 function getTeamColor(team_history: string[], correctTeam: string, guessTeam: string): string {
-  console.log(team_history)
   if (guessTeam === correctTeam) {
     return "bg-green-300"
   } else if (team_history.includes(guessTeam)) {
