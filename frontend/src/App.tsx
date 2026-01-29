@@ -2,6 +2,21 @@ import { useEffect, useRef, useState } from 'react'
 import silhouette from '/assets/silhouette.png'
 import countries from "i18n-iso-countries"
 import en from "i18n-iso-countries/langs/en.json"
+import confetti from 'canvas-confetti'
+
+type Player = {
+  name: string,
+  id: number,
+  country: string,
+  team: string,
+  roles: string,
+  rating: number,
+  birth_date: string,
+  team_images: string[],
+  team_history: string[],
+  majors: number,
+  top20: number
+}
 
 function App() {
   const [playerName, setPlayerName] = useState('')
@@ -17,23 +32,22 @@ function App() {
   const [text, setText] = useState('')
   const [playerGuesses, setPlayerGuesses] = useState<Player[]>([])
   const [correctGuessed, setCorrectGuessed] = useState(false)
+  
+  const [allPlayers, setAllPlayers] = useState<Player[]>([])
+  const [suggestions, setSuggestions] = useState<Player[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [showAbout, setShowAbout] = useState(false)
+
   const prevText = useRef("")
   const rollPlayerId = () => Math.floor(Math.random() * 110)
   const [correctPlayerId] = useState(rollPlayerId)
 
-  type Player = {
-    name: string,
-    id: number,
-    country: string,
-    team: string,
-    roles: string,
-    rating: number,
-    birth_date: string,
-    team_images: string[],
-    team_history: string[],
-    majors: number,
-    top20: number
-  }
+  useEffect(() => {
+    fetch('/api/players')
+      .then(res => res.json())
+      .then((data: Player[]) => setAllPlayers(data))
+      .catch(err => console.error("Failed to load players for autocomplete", err))
+  }, [])
 
   useEffect(() => {
     if (!correctGuessed) return
@@ -75,84 +89,231 @@ function App() {
       .catch(err => console.error(err))
   }, [playerId])
 
-  const handleChange = (e: any) => {5
+  const handleChange = (e: any) => {
+    const value = e.target.value
     prevText.current = text
-    setText(e.target.value)
+    setText(value)
+
+    if (value.length > 0) {
+      const filtered = allPlayers.filter(player => 
+        player.name.toLowerCase().startsWith(value.toLowerCase())
+      )
+      setSuggestions(filtered)
+      setShowSuggestions(true)
+    } else {
+      setSuggestions([])
+      setShowSuggestions(false)
+    }
+  }
+
+  const submitGuess = (name: string) => {
+    setText(name)
+    setShowSuggestions(false)
+    setSuggestions([])
+    
+    setPlayerId(correctPlayerId)
+    fetch(`/api/players/get_id/${name}`)
+    .then(res => {
+      if (!res.ok) {
+        alert("Player not found")
+        throw new Error("Player not found")
+      }
+    return res.json()})
+    .then((data: Player) => {
+      if (playerGuesses.some(guess => guess.id === data.id)) {
+        return
+      }
+      setText('')
+      if (data.id === correctPlayerId) {
+        setCorrectGuessed(true)
+        confetti({
+          particleCount: 150,
+          spread: 70,
+          origin: { y: 0.6 }
+        })
+      } else {
+        setPlayerGuesses(prev => [...prev, data])
+      }
+    })
+    .catch(e => console.error(e))
+  }
+
+  const handleSuggestionClick = (name: string) => {
+    submitGuess(name)
   }
 
   const handleEnter = (e: any) => {
     if (e.key === "Enter") {
-      setPlayerId(correctPlayerId)
-      fetch(`/api/players/get_id/${text}`)
-      .then(res => {
-        if (!res.ok) {
-          alert("Player not found")
-        }
-      return res.json()})
-      .then((data: Player) => {
-        if (data.id === correctPlayerId) {
-          setCorrectGuessed(true)
-        } else {
-          setPlayerGuesses(prev => [...prev, data])
-        }
-      })
+      e.preventDefault()
+      if (suggestions.length > 0) {
+        submitGuess(suggestions[0].name)
+      } else {
+        submitGuess(text)
+      }
     }
   }
 
   return (
-    <div>
-      <img className="block mx-auto w-150 h-96 object-fill" src={`${correctGuessed ? getPlayerImage(playerId) : silhouette}`}/>
-      <h1 className="text-center">{correctGuessed ? playerName : null}</h1>
+    <div className="min-h-screen bg-gray-200 py-8 relative">
+      <button 
+        onClick={() => setShowAbout(true)}
+        className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center font-bold text-gray-700 hover:bg-gray-50 hover:cursor-pointer transition"
+      >
+        ?
+      </button>
+
+      {showAbout && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowAbout(false)}>
+          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8 relative" onClick={e => e.stopPropagation()}>
+            <button 
+              onClick={() => setShowAbout(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-xl hover:cursor-pointer"
+            >
+              ✕
+            </button>
+            
+            <h2 className="text-3xl font-black tracking-tighter text-center mb-6 text-gray-800">About cs2dle</h2>
+            
+            <div className="space-y-6 text-gray-700">
+              <p className="text-lg text-center">
+                Guess the mystery CS2 player! The player changes every day. Each guess reveals more clues to help you find the correct answer.
+              </p>
+
+              <div className="bg-gray-100 p-4 rounded-lg">
+                <h3 className="font-bold mb-2 text-lg">Guide</h3>
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-4 h-4 bg-green-300 rounded"></div>
+                  <span><span className="font-bold">Green:</span> Correct property.</span>
+                </div>
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-4 h-4 bg-red-300 rounded"></div>
+                  <span><span className="font-bold">Red:</span> Incorrect property.</span>
+                </div>
+                <div className="flex items-start gap-2 mb-4">
+                  <div className="w-4 h-4 bg-orange-300 rounded mt-1 shrink-0"></div>
+                  <div>
+                    <span className="font-bold">Orange:</span> Partially correct.
+                    <ul className="list-disc list-inside ml-2 text-sm mt-1">
+                      <li><strong>Team:</strong> Player played for this team in the past.</li>
+                      <li><strong>Role:</strong> One of the player's roles matches.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-300 pt-2 mt-2">
+                   <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xl">🏅</span>
+                      <span>Highest HLTV Top 20 placement.</span>
+                   </div>
+                   <div className="flex items-center gap-2">
+                      <span className="text-xl">🏆</span>
+                      <span>Major championships won.</span>
+                   </div>
+                </div>
+              </div>
+
+              <div className="text-sm text-gray-500 space-y-2 border-t pt-4">
+                <p>
+                  <strong>Data Sources:</strong> Mainly <a href="https://liquipedia.net/counterstrike/" target="_blank" className="underline hover:text-blue-500">Liquipedia</a>. 
+                  Rating, Top 20 placements, and Majors won are from <a href="https://www.hltv.org/" target="_blank" className="underline hover:text-blue-500">HLTV</a>.
+                </p>
+                <p>
+                  <strong>Images:</strong> Sourced from <a href="https://liquipedia.net/counterstrike/" target="_blank" className="underline hover:text-blue-500">Liquipedia</a>.
+                </p>
+                <p className="italic">
+                  * Note: Player ratings, Top 20 placements and Majors won are gathered manually and may be slightly outdated.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <h1 className="text-4xl font-black tracking-tighter text-center mb-6 text-gray-800">cs2dle</h1>
+      <img className="block mx-auto h-96 w-full max-w-[37.5rem] object-fill px-4" src={`${correctGuessed ? getPlayerImage(playerId) : silhouette}`}/>
+      <h1 className="text-center text-xl font-bold mt-4">{correctGuessed ? playerName : null}</h1>
       <h1 className="text-center">{correctGuessed ? getPlayerAge(playerAge) + " years old" : null}</h1>
       <h1 className="text-center">{correctGuessed ? countryNameToFlag(playerCountry) : null}</h1>
       <h1 className="text-center">{correctGuessed ? playerRating : null}</h1>
       <h1 className="text-center">{correctGuessed ? playerMajors + " Majors 🏆" : null}</h1>
       <h1 className="text-center">{correctGuessed ? `Highest Top20 placement: ${playerTop20 === 0 ? "N/A" : playerTop20} 🏅` : null}</h1>
-      <input autoFocus type="text" value={text} onChange={handleChange} onKeyDown={handleEnter} placeholder="Insert player name" className="
-        w-52
-        mt-6
-        block mx-auto
-        border-2 border-black-200
-        bg-white
-        px-4 py-3
-        text-lg
-        text-gray-900
-        placeholder-gray-400
-        shadow-md
-        focus:outline-none
-        transition"/>
-        <div className="flex justify-center flex-col">
-          <div className="flex gap-2 mt-2 w-full max-w-5xl mx-auto items-center text-xl font-bold text-center mb-2">
-            <div className="w-52 shrink-0"></div>
-            <div className="w-12 shrink-0">{playerGuesses.length > 0 && '🌍'}</div>
-            <div className="w-32 shrink-0">{playerGuesses.length > 0 && 'Role'}</div>
-            <div className="w-16 shrink-0">{playerGuesses.length > 0 && 'Rating'}</div>
-            <div className="w-32 shrink-0">{playerGuesses.length > 0 && 'Team'}</div>
-            <div className="w-16 shrink-0">{playerGuesses.length > 0 && '🏅'}</div>
-            <div className="w-16 shrink-0">{playerGuesses.length > 0 && '🏆'}</div>
-            <div className="w-16 shrink-0">{playerGuesses.length > 0 && 'Age'}</div>
+      
+      <div className="relative w-full max-w-[36rem] mx-auto mt-6 px-4">
+        <input 
+          autoFocus 
+          type="text" 
+          value={text} 
+          onChange={handleChange} 
+          onKeyDown={handleEnter} 
+          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+          placeholder="Insert player name" 
+          className="
+            w-full
+            block
+            border-2 border-black-200
+            bg-white
+            px-6 py-4
+            text-2xl
+            text-gray-900
+            placeholder-gray-400
+            shadow-md
+            focus:outline-none
+            transition"
+        />
+        {showSuggestions && suggestions.length > 0 && (
+          <ul className="absolute z-10 left-0 right-0 mx-4 bg-white border border-gray-300 shadow-lg max-h-80 overflow-y-auto">
+            {suggestions.map((player) => (
+              <li 
+                key={player.id}
+                onClick={() => handleSuggestionClick(player.name)}
+                className="px-6 py-3 hover:bg-gray-100 cursor-pointer text-gray-900 flex items-center gap-4 text-xl"
+              >
+                <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                    <img 
+                        src={getPlayerImage(player.id)} 
+                        alt={player.name} 
+                        className="w-full h-full object-cover scale-150 origin-top" 
+                    />
+                </div>
+                <span>{player.name}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
+        <div className="flex justify-center flex-col overflow-x-auto px-4">
+          <div className="flex gap-2 mt-2 min-w-[1000px] max-w-7xl mx-auto items-center text-2xl font-bold text-center mb-2">
+            <div className="w-72 shrink-0"></div>
+            <div className="w-24 shrink-0">{playerGuesses.length > 0 && '🌍'}</div>
+            <div className="w-48 shrink-0">{playerGuesses.length > 0 && 'Role'}</div>
+            <div className="w-28 shrink-0">{playerGuesses.length > 0 && 'Rating'}</div>
+            <div className="w-48 shrink-0">{playerGuesses.length > 0 && 'Team'}</div>
+            <div className="w-28 shrink-0">{playerGuesses.length > 0 && '🏅'}</div>
+            <div className="w-28 shrink-0">{playerGuesses.length > 0 && '🏆'}</div>
+            <div className="w-28 shrink-0">{playerGuesses.length > 0 && 'Age'}</div>
           </div>
           {playerGuesses.map(guess => (
-            <div key={guess.id} className="flex gap-2 mt-6 w-full max-w-5xl mx-auto items-center text-2xl h-32">
-              <img className="h-32 w-52 object-fill shrink-0" src={getPlayerImage(guess.id)}/>
-              <div className={`w-12 h-full flex items-center justify-center shrink-0 ${guess.country === playerCountry ? "bg-green-300" : "bg-red-300"}`}>{countryNameToFlag(guess.country)}</div>
-              <div className={`w-32 h-full flex items-center justify-center shrink-0 truncate ${getRolesColor(guess.roles, playerRoles)}`}>{guess.roles}</div>
-              <div className={`w-16 h-full flex flex-col items-center justify-center shrink-0 ${guess.rating === playerRating ? "bg-green-300" : "bg-red-300"}`}>
+            <div key={guess.id} className="flex gap-2 mt-6 w-full max-w-7xl mx-auto items-center text-3xl h-40">
+              <img className="h-40 w-72 object-fill shrink-0" src={getPlayerImage(guess.id)}/>
+              <div className={`w-24 h-full flex items-center justify-center shrink-0 ${guess.country === playerCountry ? "bg-green-300" : "bg-red-300"}`}>{countryNameToFlag(guess.country)}</div>
+              <div className={`w-48 h-full flex items-center justify-center shrink-0 truncate ${getRolesColor(guess.roles, playerRoles)}`}>{guess.roles.toLowerCase()}</div>
+              <div className={`w-28 h-full flex flex-col items-center justify-center shrink-0 ${guess.rating === playerRating ? "bg-green-300" : "bg-red-300"}`}>
                 <span>{guess.rating}</span>
                 {guess.rating !== playerRating && <span>{guess.rating < playerRating ? "↑" : "↓"}</span>}
               </div>
-              <div className={`w-32 h-full flex items-center justify-center shrink-0 ${getTeamColor(playerTeamHistory, playerTeam, guess.team)}`}>
-                <img className="max-h-24 max-w-[80%] object-contain" src={getTeamImage(guess.id)} alt={guess.team} />
+              <div className={`w-48 h-full flex items-center justify-center shrink-0 ${getTeamColor(playerTeamHistory, playerTeam, guess.team)}`}>
+                <img className="max-h-32 max-w-[80%] object-contain" src={getTeamImage(guess.id)} alt={guess.team} />
               </div>
-              <div className={`w-16 h-full flex flex-col items-center justify-center shrink-0 ${guess.top20 === playerTop20 ? "bg-green-300" : "bg-red-300"}`}>
+              <div className={`w-28 h-full flex flex-col items-center justify-center shrink-0 ${guess.top20 === playerTop20 ? "bg-green-300" : "bg-red-300"}`}>
                 <span>{getPlayerTop20(guess.top20)}</span>
                 <span>{getTop20Arrows(guess.top20, playerTop20)}</span>
               </div>
-              <div className={`w-16 h-full flex flex-col items-center justify-center shrink-0 ${guess.majors === playerMajors ? "bg-green-300" : "bg-red-300"}`}>
+              <div className={`w-28 h-full flex flex-col items-center justify-center shrink-0 ${guess.majors === playerMajors ? "bg-green-300" : "bg-red-300"}`}>
                 <span>{guess.majors}</span>
                 {guess.majors !== playerMajors && <span>{guess.majors < playerMajors ? "↑" : "↓"}</span>}
               </div>
-              <div className={`w-16 h-full flex flex-col items-center justify-center shrink-0 ${calculate_age(guess.birth_date) === playerAge ? "bg-green-300" : "bg-red-300"}`}>
+              <div className={`w-28 h-full flex flex-col items-center justify-center shrink-0 ${calculate_age(guess.birth_date) === playerAge ? "bg-green-300" : "bg-red-300"}`}>
                 <span>{calculate_age(guess.birth_date)}</span>
                 {calculate_age(guess.birth_date) !== playerAge && <span>{calculate_age(guess.birth_date) < playerAge ? "↑" : "↓"}</span>}
               </div>
@@ -180,11 +341,15 @@ function getPlayerTop20(guessTop20: number): string {
 }
 
 function getRolesColor(guessRoles: string, correctRoles: string): string {
-  if (guessRoles === correctRoles) {
+  const normalize = (r: string) => r.toLowerCase().replace(/rifler/g, "rifle");
+  const normalizedGuess = normalize(guessRoles);
+  const normalizedCorrect = normalize(correctRoles);
+
+  if (normalizedGuess === normalizedCorrect) {
     return "bg-green-300"
-  } else if (correctRoles.includes(guessRoles)) {
+  } else if (normalizedCorrect.includes(normalizedGuess)) {
     return "bg-orange-300"
-  } else if (guessRoles.includes(correctRoles)) {
+  } else if (normalizedGuess.includes(normalizedCorrect)) {
     return "bg-orange-300"
   } else {
     return "bg-red-300"
