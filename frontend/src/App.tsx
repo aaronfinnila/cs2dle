@@ -37,10 +37,19 @@ function App() {
   const [suggestions, setSuggestions] = useState<Player[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
-
+  const [darkMode, setDarkMode] = useState(false)
+  
+  const inputRef = useRef<HTMLInputElement>(null)
   const prevText = useRef("")
   const rollPlayerId = () => Math.floor(Math.random() * 110)
   const [correctPlayerId] = useState(rollPlayerId)
+
+  const handleCloseAbout = () => {
+    setShowAbout(false)
+    setTimeout(() => {
+      inputRef.current?.focus()
+    }, 50)
+  }
 
   useEffect(() => {
     fetch('/api/players')
@@ -93,6 +102,13 @@ function App() {
     const value = e.target.value
     prevText.current = text
     setText(value)
+
+    if (value.toLowerCase() === "goat") {
+      const zywoo = allPlayers.filter(player => player.name === "ZywOo")
+      setSuggestions(zywoo)
+      setShowSuggestions(true)
+      return
+    }
 
     if (value.length > 0) {
       const filtered = allPlayers.filter(player => 
@@ -154,32 +170,42 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-200 py-8 relative">
+    <div className={`min-h-screen py-8 relative transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-900'}`}>
+      <button 
+        onClick={() => setDarkMode(!darkMode)}
+        className={`absolute top-4 right-16 w-10 h-10 rounded-full shadow-md flex items-center justify-center font-bold hover:cursor-pointer transition duration-300 ${darkMode ? 'bg-gray-800 text-yellow-300 hover:bg-gray-700' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+      >
+        {darkMode ? '☀️' : '🌙'}
+      </button>
+
       <button 
         onClick={() => setShowAbout(true)}
-        className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full shadow-md flex items-center justify-center font-bold text-gray-700 hover:bg-gray-50 hover:cursor-pointer transition"
+        className={`absolute top-4 right-4 w-10 h-10 rounded-full shadow-md flex items-center justify-center font-bold hover:cursor-pointer transition duration-300 ${darkMode ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
       >
         ?
       </button>
 
       {showAbout && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowAbout(false)}>
-          <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full p-8 relative" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={handleCloseAbout}>
+          <div 
+            className={`rounded-xl shadow-2xl max-w-2xl w-full p-8 relative transition-colors duration-300 ${darkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'}`} 
+            onClick={e => e.stopPropagation()}
+          >
             <button 
-              onClick={() => setShowAbout(false)}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 font-bold text-xl hover:cursor-pointer"
+              onClick={handleCloseAbout}
+              className={`absolute top-4 right-4 font-bold text-xl hover:cursor-pointer ${darkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'}`}
             >
               ✕
             </button>
             
-            <h2 className="text-3xl font-black tracking-tighter text-center mb-6 text-gray-800">About cs2dle</h2>
+            <h2 className={`text-3xl font-black tracking-tighter text-center mb-6 ${darkMode ? 'text-white' : 'text-gray-800'}`}>About cs2dle</h2>
             
-            <div className="space-y-6 text-gray-700">
+            <div className={`space-y-6 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               <p className="text-lg text-center">
-                Guess the mystery CS2 player! The player changes every day. Each guess reveals more clues to help you find the correct answer.
+                Guess the mystery CS2 player! The player changes every day. Each guess reveals more clues to help you find the correct answer. The mystery player is from a current top 30 team, based on HLTV rankings.
               </p>
 
-              <div className="bg-gray-100 p-4 rounded-lg">
+              <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
                 <h3 className="font-bold mb-2 text-lg">Guide</h3>
                 <div className="flex items-center gap-2 mb-1">
                   <div className="w-4 h-4 bg-green-300 rounded"></div>
@@ -200,7 +226,7 @@ function App() {
                   </div>
                 </div>
 
-                <div className="border-t border-gray-300 pt-2 mt-2">
+                <div className={`border-t pt-2 mt-2 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
                    <div className="flex items-center gap-2 mb-1">
                       <span className="text-xl">🏅</span>
                       <span>Highest HLTV Top 20 placement.</span>
@@ -212,16 +238,19 @@ function App() {
                 </div>
               </div>
 
-              <div className="text-sm text-gray-500 space-y-2 border-t pt-4">
+              <div className={`text-sm space-y-2 border-t pt-4 ${darkMode ? 'text-gray-400 border-gray-600' : 'text-gray-500 border-gray-200'}`}>
                 <p>
-                  <strong>Data Sources:</strong> Mainly <a href="https://liquipedia.net/counterstrike/" target="_blank" className="underline hover:text-blue-500">Liquipedia</a>. 
-                  Rating, Top 20 placements, and Majors won are from <a href="https://www.hltv.org/" target="_blank" className="underline hover:text-blue-500">HLTV</a>.
+                  <strong>Data Sources:</strong> Mainly <a href="https://liquipedia.net/counterstrike/" target="_blank" className={`underline ${darkMode ? 'hover:text-blue-400' : 'hover:text-blue-500'}`}>Liquipedia</a>. 
+                  Rating, Top 20 placements, and Majors won are from <a href="https://www.hltv.org/" target="_blank" className={`underline ${darkMode ? 'hover:text-blue-400' : 'hover:text-blue-500'}`}>HLTV</a>.
                 </p>
                 <p>
-                  <strong>Images:</strong> Sourced from <a href="https://liquipedia.net/counterstrike/" target="_blank" className="underline hover:text-blue-500">Liquipedia</a>.
+                  <strong>Images:</strong> Sourced from <a href="https://liquipedia.net/counterstrike/" target="_blank" className={`underline ${darkMode ? 'hover:text-blue-400' : 'hover:text-blue-500'}`}>Liquipedia</a>.
                 </p>
                 <p className="italic">
                   * Note: Player ratings, Top 20 placements and Majors won are gathered manually and may be slightly outdated.
+                </p>
+                <p className="pt-2 text-center font-medium">
+                  Built and maintained by <a href="https://github.com/aaronfinnila" target="_blank" className={`underline ${darkMode ? 'hover:text-blue-400' : 'hover:text-blue-500'}`}>Aaron Finnilä</a>
                 </p>
               </div>
             </div>
@@ -229,8 +258,10 @@ function App() {
         </div>
       )}
 
-      <h1 className="text-4xl font-black tracking-tighter text-center mb-6 text-gray-800">cs2dle</h1>
-      <img className="block mx-auto h-96 w-full max-w-[37.5rem] object-fill px-4" src={`${correctGuessed ? getPlayerImage(playerId) : silhouette}`}/>
+      <h1 className={`text-4xl font-black tracking-tighter text-center mb-6 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>cs2dle</h1>
+      <div className={`mx-auto w-full max-w-[37.5rem] px-4 transition-all duration-300 ${darkMode ? 'drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]' : ''}`}>
+        <img className="block mx-auto h-96 w-full object-fill" src={`${correctGuessed ? getPlayerImage(playerId) : silhouette}`}/>
+      </div>
       <h1 className="text-center text-xl font-bold mt-4">{correctGuessed ? playerName : null}</h1>
       <h1 className="text-center">{correctGuessed ? getPlayerAge(playerAge) + " years old" : null}</h1>
       <h1 className="text-center">{correctGuessed ? countryNameToFlag(playerCountry) : null}</h1>
@@ -240,6 +271,7 @@ function App() {
       
       <div className="relative w-full max-w-[36rem] mx-auto mt-6 px-4">
         <input 
+          ref={inputRef}
           autoFocus 
           type="text" 
           value={text} 
@@ -247,26 +279,27 @@ function App() {
           onKeyDown={handleEnter} 
           onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
           placeholder="Insert player name" 
-          className="
+          className={`
             w-full
             block
-            border-2 border-black-200
-            bg-white
+            border-2
             px-6 py-4
             text-2xl
-            text-gray-900
-            placeholder-gray-400
             shadow-md
             focus:outline-none
-            transition"
+            transition-colors duration-300
+            ${darkMode 
+              ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500' 
+              : 'bg-white border-black-200 text-gray-900 placeholder-gray-400'}
+          `}
         />
         {showSuggestions && suggestions.length > 0 && (
-          <ul className="absolute z-10 left-0 right-0 mx-4 bg-white border border-gray-300 shadow-lg max-h-80 overflow-y-auto">
+          <ul className={`absolute z-10 left-0 right-0 mx-4 border shadow-lg max-h-80 overflow-y-auto transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'}`}>
             {suggestions.map((player) => (
               <li 
                 key={player.id}
                 onClick={() => handleSuggestionClick(player.name)}
-                className="px-6 py-3 hover:bg-gray-100 cursor-pointer text-gray-900 flex items-center gap-4 text-xl"
+                className={`px-6 py-3 cursor-pointer flex items-center gap-4 text-xl transition-colors duration-200 ${darkMode ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-100 text-gray-900'}`}
               >
                 <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
                     <img 
@@ -282,8 +315,8 @@ function App() {
         )}
       </div>
 
-        <div className="flex justify-center flex-col overflow-x-auto px-4">
-          <div className="flex gap-2 mt-2 min-w-[1000px] max-w-7xl mx-auto items-center text-2xl font-bold text-center mb-2">
+        <div className="flex justify-center flex-col overflow-x-auto px-4 mt-8">
+          <div className={`flex gap-2 w-full max-w-7xl mx-auto items-center text-2xl font-bold text-center mb-2 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             <div className="w-72 shrink-0"></div>
             <div className="w-24 shrink-0">{playerGuesses.length > 0 && '🌍'}</div>
             <div className="w-48 shrink-0">{playerGuesses.length > 0 && 'Role'}</div>
@@ -294,7 +327,7 @@ function App() {
             <div className="w-28 shrink-0">{playerGuesses.length > 0 && 'Age'}</div>
           </div>
           {playerGuesses.map(guess => (
-            <div key={guess.id} className="flex gap-2 mt-6 w-full max-w-7xl mx-auto items-center text-3xl h-40">
+            <div key={guess.id} className={`flex gap-2 mt-6 w-full max-w-7xl mx-auto items-center text-3xl h-40 transition-colors duration-300 ${darkMode ? 'text-gray-900' : 'text-gray-900'}`}>
               <img className="h-40 w-72 object-fill shrink-0" src={getPlayerImage(guess.id)}/>
               <div className={`w-24 h-full flex items-center justify-center shrink-0 ${guess.country === playerCountry ? "bg-green-300" : "bg-red-300"}`}>{countryNameToFlag(guess.country)}</div>
               <div className={`w-48 h-full flex items-center justify-center shrink-0 truncate ${getRolesColor(guess.roles, playerRoles)}`}>{guess.roles.toLowerCase()}</div>
