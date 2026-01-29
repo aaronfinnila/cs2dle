@@ -1,22 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import silhouette from '/assets/silhouette.png'
-import countries from "i18n-iso-countries"
-import en from "i18n-iso-countries/langs/en.json"
 import confetti from 'canvas-confetti'
-
-type Player = {
-  name: string,
-  id: number,
-  country: string,
-  team: string,
-  roles: string,
-  rating: number,
-  birth_date: string,
-  team_images: string[],
-  team_history: string[],
-  majors: number,
-  top20: number
-}
+import { Trophy, Medal } from 'lucide-react'
+import { Player } from './types'
+import { GuessRow } from './components/GuessRow'
+import { 
+  calculate_age, 
+  countryNameToFlag, 
+  getPlayerImage, 
+  getPlayerAge 
+} from './utils'
 
 function App() {
   const [playerName, setPlayerName] = useState('')
@@ -37,7 +30,7 @@ function App() {
   const [suggestions, setSuggestions] = useState<Player[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
-  const [darkMode, setDarkMode] = useState(false)
+  const [darkMode, setDarkMode] = useState(true)
   
   const inputRef = useRef<HTMLInputElement>(null)
   const prevText = useRef("")
@@ -98,6 +91,12 @@ function App() {
       .catch(err => console.error(err))
   }, [playerId])
 
+  useEffect(() => {
+    if (correctGuessed) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [correctGuessed]);
+
   const handleChange = (e: any) => {
     const value = e.target.value
     prevText.current = text
@@ -140,15 +139,17 @@ function App() {
         return
       }
       setText('')
+      setPlayerGuesses(prev => [...prev, data])
+      
       if (data.id === correctPlayerId) {
-        setCorrectGuessed(true)
-        confetti({
-          particleCount: 150,
-          spread: 70,
-          origin: { y: 0.6 }
-        })
-      } else {
-        setPlayerGuesses(prev => [...prev, data])
+        setTimeout(() => {
+          setCorrectGuessed(true)
+          confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 }
+          })
+        }, 5500)
       }
     })
     .catch(e => console.error(e))
@@ -228,11 +229,11 @@ function App() {
 
                 <div className={`border-t pt-2 mt-2 ${darkMode ? 'border-gray-600' : 'border-gray-300'}`}>
                    <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xl">🏅</span>
+                      <Medal className="w-6 h-6 text-yellow-500" />
                       <span>Highest HLTV Top 20 placement.</span>
                    </div>
                    <div className="flex items-center gap-2">
-                      <span className="text-xl">🏆</span>
+                      <Trophy className="w-6 h-6 text-yellow-500" />
                       <span>Major championships won.</span>
                    </div>
                 </div>
@@ -260,14 +261,32 @@ function App() {
 
       <h1 className={`text-4xl font-black tracking-tighter text-center mb-6 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-800'}`}>cs2dle</h1>
       <div className={`mx-auto w-full max-w-[37.5rem] px-4 transition-all duration-300 ${darkMode ? 'drop-shadow-[0_0_15px_rgba(255,255,255,0.15)]' : ''}`}>
-        <img className="block mx-auto h-96 w-full object-fill" src={`${correctGuessed ? getPlayerImage(playerId) : silhouette}`}/>
+        <img 
+          key={correctGuessed ? 'revealed' : 'silhouette'}
+          className={`block mx-auto h-96 w-full object-fill ${correctGuessed ? 'animate-fade-in' : ''}`} 
+          src={`${correctGuessed ? getPlayerImage(playerId) : silhouette}`}
+        />
       </div>
-      <h1 className="text-center text-xl font-bold mt-4">{correctGuessed ? playerName : null}</h1>
-      <h1 className="text-center">{correctGuessed ? getPlayerAge(playerAge) + " years old" : null}</h1>
-      <h1 className="text-center">{correctGuessed ? countryNameToFlag(playerCountry) : null}</h1>
-      <h1 className="text-center">{correctGuessed ? playerRating : null}</h1>
-      <h1 className="text-center">{correctGuessed ? playerMajors + " Majors 🏆" : null}</h1>
-      <h1 className="text-center">{correctGuessed ? `Highest Top20 placement: ${playerTop20 === 0 ? "N/A" : playerTop20} 🏅` : null}</h1>
+      <div className={`transition-all duration-1000 ${correctGuessed ? 'opacity-100 max-h-screen' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+        <h1 className="text-center text-4xl font-black mt-4 animate-fade-in">{correctGuessed ? playerName : null}</h1>
+        <h1 className="text-center text-2xl font-bold animate-fade-in animation-delay-200">{correctGuessed ? getPlayerAge(playerAge) + " years old" : null}</h1>
+        <h1 className="text-center text-5xl my-2 animate-fade-in animation-delay-400">{correctGuessed ? countryNameToFlag(playerCountry) : null}</h1>
+        <h1 className="text-center text-xl font-semibold animate-fade-in animation-delay-600">{correctGuessed ? `Rating: ${playerRating}` : null}</h1>
+        <div className="flex items-center justify-center gap-2 text-xl font-semibold animate-fade-in animation-delay-800">
+          {correctGuessed ? (
+            <>
+              {playerMajors} Majors <Trophy className="w-6 h-6 text-yellow-500" />
+            </>
+          ) : null}
+        </div>
+        <div className="flex items-center justify-center gap-2 text-xl font-semibold animate-fade-in animation-delay-1000">
+          {correctGuessed ? (
+            <>
+              Highest Top20 placement: {playerTop20 === 0 ? "N/A" : playerTop20} <Medal className="w-6 h-6 text-yellow-500" />
+            </>
+          ) : null}
+        </div>
+      </div>
       
       <div className="relative w-full max-w-[36rem] mx-auto mt-6 px-4">
         <input 
@@ -315,149 +334,40 @@ function App() {
         )}
       </div>
 
-        <div className="flex justify-center flex-col overflow-x-auto px-4 mt-8">
-          <div className={`flex gap-2 w-full max-w-7xl mx-auto items-center text-2xl font-bold text-center mb-2 transition-colors duration-300 ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+        <div className="flex justify-center flex-col overflow-x-auto overflow-y-hidden px-4 mt-8">
+          <div className={`flex gap-2 w-full max-w-7xl mx-auto items-center text-2xl font-bold text-center mb-2 transition-colors duration-300 min-w-max ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             <div className="w-72 shrink-0"></div>
             <div className="w-24 shrink-0">{playerGuesses.length > 0 && '🌍'}</div>
             <div className="w-48 shrink-0">{playerGuesses.length > 0 && 'Role'}</div>
             <div className="w-28 shrink-0">{playerGuesses.length > 0 && 'Rating'}</div>
             <div className="w-48 shrink-0">{playerGuesses.length > 0 && 'Team'}</div>
-            <div className="w-28 shrink-0">{playerGuesses.length > 0 && '🏅'}</div>
-            <div className="w-28 shrink-0">{playerGuesses.length > 0 && '🏆'}</div>
+            <div className="w-28 shrink-0 flex justify-center">{playerGuesses.length > 0 && <Medal className="w-6 h-6 text-yellow-500" />}</div>
+            <div className="w-28 shrink-0 flex justify-center">{playerGuesses.length > 0 && <Trophy className="w-6 h-6 text-yellow-500" />}</div>
             <div className="w-28 shrink-0">{playerGuesses.length > 0 && 'Age'}</div>
           </div>
           {playerGuesses.map(guess => (
-            <div key={guess.id} className={`flex gap-2 mt-6 w-full max-w-7xl mx-auto items-center text-3xl h-40 transition-colors duration-300 ${darkMode ? 'text-gray-900' : 'text-gray-900'}`}>
-              <img className="h-40 w-72 object-fill shrink-0" src={getPlayerImage(guess.id)}/>
-              <div className={`w-24 h-full flex items-center justify-center shrink-0 ${guess.country === playerCountry ? "bg-green-300" : "bg-red-300"}`}>{countryNameToFlag(guess.country)}</div>
-              <div className={`w-48 h-full flex items-center justify-center shrink-0 truncate ${getRolesColor(guess.roles, playerRoles)}`}>{guess.roles.toLowerCase()}</div>
-              <div className={`w-28 h-full flex flex-col items-center justify-center shrink-0 ${guess.rating === playerRating ? "bg-green-300" : "bg-red-300"}`}>
-                <span>{guess.rating}</span>
-                {guess.rating !== playerRating && <span>{guess.rating < playerRating ? "↑" : "↓"}</span>}
-              </div>
-              <div className={`w-48 h-full flex items-center justify-center shrink-0 ${getTeamColor(playerTeamHistory, playerTeam, guess.team)}`}>
-                <img className="max-h-32 max-w-[80%] object-contain" src={getTeamImage(guess.id)} alt={guess.team} />
-              </div>
-              <div className={`w-28 h-full flex flex-col items-center justify-center shrink-0 ${guess.top20 === playerTop20 ? "bg-green-300" : "bg-red-300"}`}>
-                <span>{getPlayerTop20(guess.top20)}</span>
-                <span>{getTop20Arrows(guess.top20, playerTop20)}</span>
-              </div>
-              <div className={`w-28 h-full flex flex-col items-center justify-center shrink-0 ${guess.majors === playerMajors ? "bg-green-300" : "bg-red-300"}`}>
-                <span>{guess.majors}</span>
-                {guess.majors !== playerMajors && <span>{guess.majors < playerMajors ? "↑" : "↓"}</span>}
-              </div>
-              <div className={`w-28 h-full flex flex-col items-center justify-center shrink-0 ${calculate_age(guess.birth_date) === playerAge ? "bg-green-300" : "bg-red-300"}`}>
-                <span>{calculate_age(guess.birth_date)}</span>
-                {calculate_age(guess.birth_date) !== playerAge && <span>{calculate_age(guess.birth_date) < playerAge ? "↑" : "↓"}</span>}
-              </div>
-              </div>
+              <GuessRow 
+                key={guess.id} 
+                guess={guess} 
+                darkMode={darkMode}
+                target={{
+                  country: playerCountry,
+                  roles: playerRoles,
+                  rating: playerRating,
+                  team: playerTeam,
+                  team_history: playerTeamHistory,
+                  top20: playerTop20,
+                  majors: playerMajors,
+                  age: playerAge
+                }}
+              />
           ))}
           </div>
+        <div className={`mt-20 text-center text-sm font-medium transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+        Click <span className="font-bold">?</span> in top right for more info
       </div>
+    </div>
   )
-}
-
-function getTeamColor(team_history: string[], correctTeam: string, guessTeam: string): string {
-  if (guessTeam === correctTeam) {
-    return "bg-green-300"
-  } else if (team_history.includes(guessTeam)) {
-    return "bg-orange-300"
-  } else {
-    return "bg-red-300"
-  }
-}
-
-function getPlayerTop20(guessTop20: number): string {
-  if (guessTop20 === 0) {
-    return "N/A"
-  } else return `${guessTop20}`
-}
-
-function getRolesColor(guessRoles: string, correctRoles: string): string {
-  const normalize = (r: string) => r.toLowerCase().replace(/rifler/g, "rifle");
-  const normalizedGuess = normalize(guessRoles);
-  const normalizedCorrect = normalize(correctRoles);
-
-  if (normalizedGuess === normalizedCorrect) {
-    return "bg-green-300"
-  } else if (normalizedCorrect.includes(normalizedGuess)) {
-    return "bg-orange-300"
-  } else if (normalizedGuess.includes(normalizedCorrect)) {
-    return "bg-orange-300"
-  } else {
-    return "bg-red-300"
-  }
-}
-
-function getTop20Arrows(guessTop20: number, correctTop20: number): string {
-  if (guessTop20 === correctTop20) {
-    return ""
-  } else if (guessTop20 < correctTop20) {
-    return "↑"
-  } else {
-    return "↓"
-  }
-}
-
-function getPlayerImage(id: number): string {
-  if (id === 0) {
-    return silhouette
-  } else {
-    return `/api/players/${id}/image`
-  }
-}
-
-function getTeamImage(id: number): any {
-  if (id === 0) {
-    return undefined
-  } else {
-    return `/api/players/${id}/team_image`
-  }
-}
-
-function getPlayerAge(age: number): any {
-  if (age === 0) {
-    return null
-  } else {
-    return age
-  }
-}
-
-function calculate_age(birthdate: string): number {
-  let year: number = Number(birthdate.substring(0, 4))
-  let month: number = Number(birthdate.substring(5, 7))
-  let day: number = Number(birthdate.substring(8, 10))
-
-  let dateTime = new Date()
-  let age: number = 0
-
-  if (month < dateTime.getMonth()+1) {
-    age = dateTime.getFullYear() - year
-  } else if (month > dateTime.getMonth()+1) {
-    age = dateTime.getFullYear() - (year+1)
-  } else {
-    if (dateTime.getDate() > day) {
-      age = dateTime.getFullYear() - year
-    } else {
-      age = dateTime.getFullYear() - (year+1)
-    }
-  }
-  return age
-}
-
-function countryCodeToFlag(code: string): string {
-  return code
-    .toUpperCase()
-    .replace(/./g, char =>
-      String.fromCodePoint(127397 + char.charCodeAt(0))
-    );
-}
-
-countries.registerLocale(en);
-
-function countryNameToFlag(name: string): string | null {
-  const code = countries.getAlpha2Code(name, "en");
-  return code ? countryCodeToFlag(code) : null;
 }
 
 export default App
