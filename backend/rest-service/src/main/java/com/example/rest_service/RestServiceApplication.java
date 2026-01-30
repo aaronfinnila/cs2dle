@@ -11,13 +11,17 @@ public class RestServiceApplication {
 	public static void main(String[] args) {
 		Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 		
-		if (dotenv.entries().isEmpty() == false) {
-			System.setProperty("DB_USER", dotenv.get("DB_USER"));
-			System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
-			System.setProperty("DB_URL", dotenv.get("DB_URL"));
-		}
+		setIfPresent("DB_USER", dotenv);
+        setIfPresent("DB_PASSWORD", dotenv);
+        setIfPresent("DB_URL", dotenv);
 
 		SpringApplication.run(RestServiceApplication.class, args);
 	}
 
+	private static void setIfPresent(String key, Dotenv dotenv) {
+        String value = dotenv.get(key);
+        if (value != null && System.getenv(key) == null) {
+            System.setProperty(key, value);
+        }
+	}
 }
