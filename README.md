@@ -1,10 +1,10 @@
-# CS2dle
+# cs2dle
 
-CS2dle is a daily guessing game for Counter-Strike 2 professional players, inspired by Wordle. Test your esports knowledge by guessing the pro player based on attributes like nationality, team, age, and role.
+cs2dle is a daily guessing game for Counter-Strike 2 professional players. Test your esports knowledge by guessing the pro player based on attributes like nationality, team, age, and role.
 
 **Live Website:** [cs2dle.org](https://cs2dle.org)
 
-## 🎮 Features
+## Features
 
 - **Daily Player:** A new pro player to guess every day.
 - **Attribute Clues:** Get feedback on your guesses based on:
@@ -14,7 +14,7 @@ CS2dle is a daily guessing game for Counter-Strike 2 professional players, inspi
   - In-Game Role
 - **Player Database:** Comprehensive database of top tier CS2 professionals.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 This project is built as a modern full-stack application.
 
@@ -36,7 +36,7 @@ This project is built as a modern full-stack application.
 - **Source:** Liquipedia API
 - **Libraries:** `requests`, `mwparserfromhell`, `psycopg2`
 
-## 🚀 Getting Started
+## Getting Started
 
 Follow these instructions to set up the project locally for development.
 
@@ -106,7 +106,7 @@ Run the script (note: it respects Liquipedia's rate limits, so it may take some 
 python get_playerdata.py
 ```
 
-## 📄 License & Credits
+## License & Credits
 
 - **Data Source:** Player data is fetched from [Liquipedia Counter-Strike](https://liquipedia.net/counterstrike/) under the CC-BY-SA 3.0 license.
 - **Disclaimer:** This project is not affiliated with Valve Corporation or Counter-Strike 2.
