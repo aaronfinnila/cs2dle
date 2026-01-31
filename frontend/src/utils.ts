@@ -55,11 +55,12 @@ export function getPlayerImage(id: number): string {
   }
 }
 
-export function getTeamImage(id: number): any {
+export function getTeamImage(id: number, num: number): any {
   if (id === 0) {
     return undefined
   } else {
-    return `/api/players/${id}/team_image`
+    // num 1 = latest team, 2 = second latest, etc
+    return `/api/players/${id}/team_image_${num}`
   }
 }
 
@@ -74,7 +75,7 @@ export function getTeamColor(team_history: string[], correctTeam: string, guessT
 }
 
 export function getRolesColor(guessRoles: string, correctRoles: string): string {
-  const normalize = (r: string) => r.toLowerCase().replace(/rifler/g, "rifle");
+  const normalize = (r: string) => r.toLowerCase().replace(/rifler/g, "rifle").replace(/\s+/g, '');
   const normalizedGuess = normalize(guessRoles);
   const normalizedCorrect = normalize(correctRoles);
 

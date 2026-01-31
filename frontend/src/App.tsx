@@ -4,11 +4,13 @@ import confetti from 'canvas-confetti'
 import { Trophy, Medal } from 'lucide-react'
 import { Player } from './types'
 import { GuessRow } from './components/GuessRow'
+import React from 'react'
 import { 
   calculate_age, 
   countryNameToFlag, 
   getPlayerImage, 
-  getPlayerAge 
+  getPlayerAge,
+  getTeamImage
 } from './utils'
 
 function App() {
@@ -64,7 +66,9 @@ function App() {
         setPlayerRoles(data.roles)
         setPlayerRating(data.rating)
         setPlayerTop20(data.top20)
-        setPlayerMajors(data.majors)      })
+        setPlayerMajors(data.majors)
+        setPlayerTeamHistory(data.team_history)
+      })
       .catch(err => console.error(err))
   }, [playerId])
 
@@ -171,7 +175,7 @@ function App() {
   }
 
   return (
-    <div className={`min-h-screen py-8 relative transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-900'}`}>
+    <div className={`flex flex-col min-h-screen py-8 relative transition-colors duration-300 ${darkMode ? 'bg-gray-900 text-white' : 'bg-gray-200 text-gray-900'}`}>
       <button 
         onClick={() => setDarkMode(!darkMode)}
         className={`absolute top-4 right-16 w-10 h-10 rounded-full shadow-md flex items-center justify-center font-bold hover:cursor-pointer transition duration-300 ${darkMode ? 'bg-gray-800 text-yellow-300 hover:bg-gray-700' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
@@ -286,6 +290,25 @@ function App() {
             </>
           ) : null}
         </div>
+        <div className="flex items-center justify-center gap-2 text-xl font-semibold animate-fade-in animation-delay-1000">
+          Team History:
+        </div>
+        <div className="flex items-center justify-center gap-4 mt-4 animate-fade-in animation-delay-1000">
+             {correctGuessed && 
+             Array.from({ length: 3 }).map((_, index, arr) => {
+               const num = arr.length - index
+               return (
+                <React.Fragment key={num}>
+               <img key={num} src={getTeamImage(playerId, num)} className="h-12 w-auto object-contain" />
+               {index < arr.length - 1 && (
+                <span className="text-xl opacity-70">→</span>
+               )}
+                </React.Fragment>
+               )
+            }
+          )
+        }
+        </div>
       </div>
       
       <div className="relative w-full max-w-[36rem] mx-auto mt-6 px-4">
@@ -334,7 +357,7 @@ function App() {
         )}
       </div>
 
-        <div className="flex justify-center flex-col overflow-x-auto overflow-y-hidden px-4 mt-8">
+        <div className={`flex justify-center flex-col overflow-x-auto overflow-y-hidden px-4 my-8 ${playerGuesses.length === 0 ? 'hidden' : ''}`}>
           <div className={`flex gap-2 w-full max-w-7xl mx-auto items-center text-2xl font-bold text-center mb-2 transition-colors duration-300 min-w-max ${darkMode ? 'text-white' : 'text-gray-900'}`}>
             <div className="w-72 shrink-0"></div>
             <div className="w-24 shrink-0">{playerGuesses.length > 0 && '🌍'}</div>
@@ -363,7 +386,7 @@ function App() {
               />
           ))}
           </div>
-        <div className={`mt-20 text-center text-sm font-medium transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+        <div className={`mt-auto text-center text-sm font-medium transition-colors duration-300 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
         Click <span className="font-bold">?</span> in top right for more info
       </div>
     </div>

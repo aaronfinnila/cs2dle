@@ -63,7 +63,7 @@ export const GuessRow = ({ guess, target, darkMode }: GuessRowProps) => {
 
             <div className={`${getAnimClass(2)} w-48 h-full shrink-0`}>
                 <div className={`w-full h-full flex items-center justify-center shrink-0 truncate ${getRolesColor(guess.roles, target.roles)}`}>
-                    {guess.roles.toLowerCase()}
+                    {guess.roles.toLowerCase().replace(/\s+/g, '')}
                 </div>
             </div>
 
@@ -76,7 +76,7 @@ export const GuessRow = ({ guess, target, darkMode }: GuessRowProps) => {
 
             <div className={`${getAnimClass(4)} w-48 h-full shrink-0`}>
                 <div className={`w-full h-full flex items-center justify-center shrink-0 ${getTeamColor(target.team_history, target.team, guess.team)}`}>
-                    <img className="max-h-32 max-w-[80%] object-contain" src={getTeamImage(guess.id)} alt={guess.team} />
+                    <img className="max-h-32 max-w-[80%] object-contain" src={getTeamImage(guess.id, 1)} alt={guess.team} />
                 </div>
             </div>
 

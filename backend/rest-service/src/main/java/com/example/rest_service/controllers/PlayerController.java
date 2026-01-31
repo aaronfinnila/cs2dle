@@ -69,6 +69,19 @@ public class PlayerController {
             .body(imageBytes);
     }
 
+    @GetMapping("/{id}/team_image_{num}")
+    public ResponseEntity<byte[]> getTeamImagesLatest(@PathVariable Long id, @PathVariable Integer num) {
+        Player player = playerRepository.findById(id).orElseThrow();
+        if (player == null) {
+            return ResponseEntity.notFound().build();
+        }
+        RestTemplate restTemplate = new RestTemplate();
+        byte[] imageBytes = restTemplate.getForObject(player.getTeam_images().get(player.getTeam_images().size()-(num)), byte[].class);
+        return ResponseEntity.ok()
+            .contentType(MediaType.IMAGE_PNG)
+            .body(imageBytes);
+    }
+
     @GetMapping("/get_id/{name}")
     public ResponseEntity<PlayerDto> getPlayerId(@PathVariable String name) {
         Player player = playerRepository.findByName(name).orElseThrow();
