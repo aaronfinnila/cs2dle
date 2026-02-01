@@ -4,6 +4,8 @@ import silhouette from '/assets/silhouette.png'
 
 countries.registerLocale(en);
 
+const baseUrl = import.meta.env.VITE_API_URL;
+
 export function countryCodeToFlag(code: string): string {
   return code
     .toUpperCase()
@@ -51,7 +53,7 @@ export function getPlayerImage(id: number): string {
   if (id === 0) {
     return silhouette
   } else {
-    return `/api/players/${id}/image`
+    return `${baseUrl}/players/${id}/image`
   }
 }
 
@@ -60,7 +62,7 @@ export function getTeamImage(id: number, num: number): any {
     return undefined
   } else {
     // num 1 = latest team, 2 = second latest, etc
-    return `/api/players/${id}/team_image_${num}`
+    return `${baseUrl}/players/${id}/team_image_${num}`
   }
 }
 

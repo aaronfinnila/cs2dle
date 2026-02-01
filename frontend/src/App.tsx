@@ -39,7 +39,7 @@ function App() {
   const rollPlayerId = () => Math.floor(Math.random() * 110)
   const [correctPlayerId] = useState(rollPlayerId)
 
-  const baseUrl = "https://cs2dle.onrender.com"
+  const baseUrl = import.meta.env.VITE_API_URL;
 
   const handleCloseAbout = () => {
     setShowAbout(false)
