@@ -47,7 +47,7 @@ function App() {
   }
 
   useEffect(() => {
-    fetch('/api/players')
+    fetch(`${import.meta.env.VITE_API_URL}/players`)
       .then(res => res.json())
       .then((data: Player[]) => setAllPlayers(data))
       .catch(err => console.error("Failed to load players for autocomplete", err))
@@ -55,7 +55,7 @@ function App() {
 
   useEffect(() => {
     if (!correctGuessed) return
-    fetch(`/api/players/${playerId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/players${playerId}`)
       .then(res => res.json())
       .then((data: Player) => {
         setPlayerName(data.name)
@@ -74,7 +74,7 @@ function App() {
 
     useEffect(() => {
     if (!playerId) return
-    fetch(`/api/players/${playerId}`)
+    fetch(`${import.meta.env.VITE_API_URL}/players${playerId}`)
       .then(res => {
         if (!res.ok) {
           setPlayerId(rollPlayerId)
@@ -131,7 +131,7 @@ function App() {
     setSuggestions([])
     
     setPlayerId(correctPlayerId)
-    fetch(`/api/players/get_id/${name}`)
+    fetch(`${import.meta.env.VITE_API_URL}/players/get_id/${name}`)
     .then(res => {
       if (!res.ok) {
         alert("Player not found")
