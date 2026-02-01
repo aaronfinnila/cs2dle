@@ -39,6 +39,8 @@ function App() {
   const rollPlayerId = () => Math.floor(Math.random() * 110)
   const [correctPlayerId] = useState(rollPlayerId)
 
+  const baseUrl = "https://cs2dle.onrender.com"
+
   const handleCloseAbout = () => {
     setShowAbout(false)
     setTimeout(() => {
@@ -47,7 +49,7 @@ function App() {
   }
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/players`)
+    fetch(`${baseUrl}/players`)
       .then(res => res.json())
       .then((data: Player[]) => setAllPlayers(data))
       .catch(err => console.error("Failed to load players for autocomplete", err))
@@ -55,7 +57,7 @@ function App() {
 
   useEffect(() => {
     if (!correctGuessed) return
-    fetch(`${import.meta.env.VITE_API_URL}/players${playerId}`)
+    fetch(`${baseUrl}/players/${playerId}`)
       .then(res => res.json())
       .then((data: Player) => {
         setPlayerName(data.name)
@@ -74,7 +76,7 @@ function App() {
 
     useEffect(() => {
     if (!playerId) return
-    fetch(`${import.meta.env.VITE_API_URL}/players${playerId}`)
+    fetch(`${baseUrl}/players/${playerId}`)
       .then(res => {
         if (!res.ok) {
           setPlayerId(rollPlayerId)
@@ -131,7 +133,7 @@ function App() {
     setSuggestions([])
     
     setPlayerId(correctPlayerId)
-    fetch(`${import.meta.env.VITE_API_URL}/players/get_id/${name}`)
+    fetch(`${baseUrl}/players/get_id/${name}`)
     .then(res => {
       if (!res.ok) {
         alert("Player not found")
