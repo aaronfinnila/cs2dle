@@ -1,5 +1,9 @@
 package com.example.rest_service.controllers;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -20,10 +24,12 @@ import com.example.rest_service.repositories.PlayerRepository;
 public class PlayerController {
     private final PlayerRepository playerRepository;
     private final PlayerMapper playerMapper;
+    private final RestTemplate restTemplate;
 
     public PlayerController(PlayerRepository playerRepository, PlayerMapper playerMapper) {
         this.playerRepository = playerRepository;
         this.playerMapper = playerMapper;
+        this.restTemplate = new RestTemplate();
     }
 
     @GetMapping
@@ -46,14 +52,35 @@ public class PlayerController {
     @GetMapping("/{id}/image")
     public ResponseEntity<byte[]> getPlayerImage(@PathVariable Long id) {
         Player player = playerRepository.findById(id).orElseThrow();
-        if (player == null) {
-            return ResponseEntity.notFound().build();
+
+        HttpHeaders reqHeaders = new HttpHeaders();
+        reqHeaders.setAccept(java.util.List.of(MediaType.ALL));
+        reqHeaders.set(HttpHeaders.USER_AGENT, "Mozilla/5.0");
+
+        ResponseEntity<byte[]> upstream = restTemplate.exchange(
+                player.getImage(),
+                HttpMethod.GET,
+                new HttpEntity<>(reqHeaders),
+                byte[].class
+        );
+
+        if (!upstream.getStatusCode().is2xxSuccessful() || upstream.getBody() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
         }
-        RestTemplate restTemplate = new RestTemplate();
-        byte[] imageBytes = restTemplate.getForObject(player.getImage(), byte[].class);
+
+        MediaType upstreamType = upstream.getHeaders().getContentType();
+        if (upstreamType == null) upstreamType = MediaType.APPLICATION_OCTET_STREAM;
+
+        if (MediaType.TEXT_HTML.includes(upstreamType)) {
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .body("Upstream returned HTML, not an image.".getBytes());
+        }
+
         return ResponseEntity.ok()
-            .contentType(MediaType.IMAGE_PNG)
-            .body(imageBytes);
+                .contentType(upstreamType)
+                .header(HttpHeaders.CACHE_CONTROL, "public, max-age=86400")
+                .body(upstream.getBody());
     }
     
     @GetMapping("/{id}/team_image")
