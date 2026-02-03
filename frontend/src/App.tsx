@@ -41,6 +41,7 @@ function App() {
 
   // api url fix
   const baseUrl = import.meta.env.VITE_API_URL;
+  const apiKey = import.meta.env.VITE_API_KEY;
 
   const handleCloseAbout = () => {
     setShowAbout(false)
@@ -50,7 +51,11 @@ function App() {
   }
 
   useEffect(() => {
-    fetch(`${baseUrl}/players`)
+    fetch(`${baseUrl}/players`, {
+      headers: {
+        'X-API-KEY': apiKey
+      }
+    })
       .then(res => res.json())
       .then((data: Player[]) => setAllPlayers(data))
       .catch(err => console.error("Failed to load players for autocomplete", err))
@@ -58,7 +63,11 @@ function App() {
 
   useEffect(() => {
     if (!correctGuessed) return
-    fetch(`${baseUrl}/players/${playerId}`)
+    fetch(`${baseUrl}/players/${playerId}`, {
+      headers: {
+        'X-API-KEY': apiKey
+      }
+    })
       .then(res => res.json())
       .then((data: Player) => {
         setPlayerName(data.name)
@@ -77,7 +86,11 @@ function App() {
 
     useEffect(() => {
     if (!playerId) return
-    fetch(`${baseUrl}/players/${playerId}`)
+    fetch(`${baseUrl}/players/${playerId}`, {
+      headers: {
+        'X-API-KEY': apiKey
+      }
+    })
       .then(res => {
         if (!res.ok) {
           setPlayerId(rollPlayerId)
@@ -134,7 +147,11 @@ function App() {
     setSuggestions([])
     
     setPlayerId(correctPlayerId)
-    fetch(`${baseUrl}/players/get_id/${name}`)
+    fetch(`${baseUrl}/players/get_id/${name}`, {
+      headers: {
+        'X-API-KEY': apiKey
+      }
+    })
     .then(res => {
       if (!res.ok) {
         alert("Player not found")

@@ -14,6 +14,7 @@ public class RestServiceApplication {
 		setIfPresent("DB_USER", dotenv);
         setIfPresent("DB_PASSWORD", dotenv);
         setIfPresent("DB_URL", dotenv);
+        setIfPresent("APP_API_KEY", dotenv);
 
 		SpringApplication.run(RestServiceApplication.class, args);
 	}
