@@ -39,7 +39,7 @@ function App() {
   const rollPlayerId = () => Math.floor(Math.random() * 110)
   const [correctPlayerId] = useState(rollPlayerId)
 
-  // api url fix
+  // api url fixed
   const baseUrl = import.meta.env.VITE_API_URL;
   const apiKey = import.meta.env.VITE_API_KEY;
 
