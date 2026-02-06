@@ -215,33 +215,33 @@ def fetch_player_data(player_name):
     wikitext = fetch_player_wikitext(player_name)
     info = parse_infobox(wikitext)
 
-    # player_image = None
-    # if info.get("image"):
-    #     image_filename = str(info.get("image")).strip()
-    #     image_filename = image_filename.replace("File:", "").strip()
-    #     params = {
-    #         "action": "query",
-    #         "titles": f"File:{image_filename}",
-    #         "prop": "imageinfo",
-    #         "iiprop": "url",
-    #         "format": "json"
-    #     }
-    #     response = requests.get(API_URL, params=params, headers=HEADERS)
-    #     response.raise_for_status()
-    #     data = response.json()
+    player_image = None
+    if info.get("image"):
+        image_filename = str(info.get("image")).strip()
+        image_filename = image_filename.replace("File:", "").strip()
+        params = {
+            "action": "query",
+            "titles": f"File:{image_filename}",
+            "prop": "imageinfo",
+            "iiprop": "url",
+            "format": "json"
+        }
+        response = requests.get(API_URL, params=params, headers=HEADERS)
+        response.raise_for_status()
+        data = response.json()
 
-    #     pages = data.get("query", {}).get("pages", {})
-    #     page_data = next(iter(pages.values()), {})
-    #     if "imageinfo" in page_data:
-    #         player_image = page_data["imageinfo"][0].get("url")
+        pages = data.get("query", {}).get("pages", {})
+        page_data = next(iter(pages.values()), {})
+        if "imageinfo" in page_data:
+            player_image = page_data["imageinfo"][0].get("url")
 
-    # team_images = []
-    # team_history = clean_teams(info["team_history"])
-    # for team in team_history:
-    #     team_images.append(fetch_team_image(team))
-    #     print(f"Fetched {team} image")
-    #     print(f"Waiting 30s...")
-    #     time.sleep(30) # Liquipedia ToS: 30s between parse requests
+    team_images = []
+    team_history = clean_teams(info["team_history"])
+    for team in team_history:
+        team_images.append(fetch_team_image(team))
+        print(f"Fetched {team} image")
+        print(f"Waiting 30s...")
+        time.sleep(30) # Liquipedia ToS: 30s between parse requests
     
     player_data = {
         "name": player_name,
