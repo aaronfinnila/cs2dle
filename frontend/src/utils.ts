@@ -82,7 +82,7 @@ export function getTeamColor(team_history: string[], correctTeam: string, guessT
 }
 
 export function getRolesColor(guessRoles: string, correctRoles: string): string {
-  const normalize = (r: string) => r.toLowerCase().replace(/rifler/g, "rifle").replace(/\s+/g, '');
+  const normalize = (r: string) => r.toLowerCase().replace(/rifler/g, "rifle").replace(/entryfragger/g, "entry").replace(/\s+/g, '');
   const normalizedGuess = normalize(guessRoles);
   const normalizedCorrect = normalize(correctRoles);
 
@@ -106,9 +106,22 @@ export function getPlayerTop20(guessTop20: number): string {
 export function getTop20Arrows(guessTop20: number, correctTop20: number): string {
   if (guessTop20 === correctTop20) {
     return ""
-  } else if (guessTop20 < correctTop20) {
-    return "↑"
+  }
+  
+  // Handle N/A (0) as the worst possible ranking
+  // If guess is N/A (0) and correct is not, guess is worse
+  if (guessTop20 === 0 && correctTop20 !== 0) {
+    return "↑" // Need a better player
+  }
+  // If correct is N/A (0) and guess is not, guess is better
+  if (correctTop20 === 0 && guessTop20 !== 0) {
+    return "↓" // Need a worse player
+  }
+  
+  // For normal rankings (1-20): lower number is better
+  if (guessTop20 < correctTop20) {
+    return "↓" // Guessed too good, need worse player
   } else {
-    return "↓"
+    return "↑" // Guessed too bad, need better player
   }
 }

@@ -32,7 +32,10 @@ function App() {
   const [suggestions, setSuggestions] = useState<Player[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [showAbout, setShowAbout] = useState(false)
-  const [darkMode, setDarkMode] = useState(true)
+  const [darkMode, setDarkMode] = useState(() => {
+    const saved = localStorage.getItem('darkMode')
+    return saved !== null ? JSON.parse(saved) : true
+  })
   
   const inputRef = useRef<HTMLInputElement>(null)
   const prevText = useRef("")
@@ -49,6 +52,11 @@ function App() {
       inputRef.current?.focus()
     }, 50)
   }
+
+  // Save theme preference to localStorage
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode))
+  }, [darkMode])
 
   useEffect(() => {
     fetch(`${baseUrl}/players`, {

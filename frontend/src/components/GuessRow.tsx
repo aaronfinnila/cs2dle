@@ -63,7 +63,7 @@ export const GuessRow = ({ guess, target, darkMode }: GuessRowProps) => {
 
             <div className={`${getAnimClass(2)} w-48 h-full shrink-0`}>
                 <div className={`w-full h-full flex items-center justify-center shrink-0 truncate ${getRolesColor(guess.roles, target.roles)}`}>
-                    {guess.roles.toLowerCase().replace(/\s+/g, '')}
+                    {guess.roles.toLowerCase().replace(/rifler/g, "rifle").replace(/entryfragger/g, "entry").replace(/\s+/g, '')}
                 </div>
             </div>
 
