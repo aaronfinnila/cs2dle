@@ -15,6 +15,11 @@ export function countryCodeToFlag(code: string): string {
 }
 
 export function countryNameToFlag(name: string): string | null {
+  // If it's already a 2-letter code (like "EE"), use it directly
+  if (name.length === 2) {
+    return countryCodeToFlag(name);
+  }
+  // Otherwise, try to get the code from the country name
   const code = countries.getAlpha2Code(name, "en");
   return code ? countryCodeToFlag(code) : null;
 }

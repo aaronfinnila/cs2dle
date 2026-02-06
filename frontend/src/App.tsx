@@ -310,16 +310,33 @@ function App() {
             </>
           ) : null}
         </div>
-        <div className="flex items-center justify-center gap-2 text-xl font-semibold animate-fade-in animation-delay-1000">
-          Team History:
-        </div>
         <div className="flex items-center justify-center gap-4 mt-4 animate-fade-in animation-delay-1000">
              {correctGuessed && 
              Array.from({ length: 3 }).map((_, index, arr) => {
                const num = arr.length - index
+               const teamImageUrl = getTeamImage(playerId, num)
                return (
                 <React.Fragment key={num}>
-               <img key={num} src={getTeamImage(playerId, num)} className="h-12 w-auto object-contain" />
+               {teamImageUrl ? (
+                 <img 
+                   key={num} 
+                   src={teamImageUrl} 
+                   className="h-12 w-auto object-contain" 
+                   onError={(e) => {
+                     e.currentTarget.style.display = 'none';
+                     const questionMark = e.currentTarget.nextElementSibling;
+                     if (questionMark && questionMark.classList.contains('team-fallback')) {
+                       (questionMark as HTMLElement).style.display = 'flex';
+                     }
+                   }}
+                 />
+               ) : null}
+               <div 
+                 className={`team-fallback h-12 w-12 items-center justify-center text-2xl font-bold ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                 style={{ display: teamImageUrl ? 'none' : 'flex' }}
+               >
+                 ?
+               </div>
                {index < arr.length - 1 && (
                 <span className="text-xl opacity-70">→</span>
                )}
@@ -332,48 +349,72 @@ function App() {
       </div>
       
       <div className="relative w-full max-w-[36rem] mx-auto mt-6 px-4">
-        <input 
-          ref={inputRef}
-          autoFocus 
-          type="text" 
-          value={text} 
-          onChange={handleChange} 
-          onKeyDown={handleEnter} 
-          onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-          placeholder="Insert player name" 
-          className={`
-            w-full
-            block
-            border-2
-            px-6 py-4
-            text-2xl
-            shadow-md
-            focus:outline-none
-            transition-colors duration-300
-            ${darkMode 
-              ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500' 
-              : 'bg-white border-black-200 text-gray-900 placeholder-gray-400'}
-          `}
-        />
-        {showSuggestions && suggestions.length > 0 && (
-          <ul className={`absolute z-10 left-0 right-0 mx-4 border shadow-lg max-h-80 overflow-y-auto transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'}`}>
-            {suggestions.map((player) => (
-              <li 
-                key={player.id}
-                onClick={() => handleSuggestionClick(player.name)}
-                className={`px-6 py-3 cursor-pointer flex items-center gap-4 text-xl transition-colors duration-200 ${darkMode ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-100 text-gray-900'}`}
-              >
-                <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
-                    <img 
-                        src={getPlayerImage(player.id)} 
-                        alt={player.name} 
-                        className="w-full h-full object-cover scale-150 origin-top" 
-                    />
-                </div>
-                <span>{player.name}</span>
-              </li>
-            ))}
-          </ul>
+        {correctGuessed ? (
+          <button 
+            onClick={() => window.location.reload()}
+            className={`
+              w-full
+              block
+              border-2
+              px-6 py-4
+              text-2xl
+              font-bold
+              shadow-md
+              hover:cursor-pointer
+              transition-all duration-300
+              ${darkMode 
+                ? 'bg-green-600 border-green-500 text-white hover:bg-green-500' 
+                : 'bg-green-500 border-green-400 text-white hover:bg-green-400'}
+            `}
+          >
+            Play Again
+          </button>
+        ) : (
+          <>
+            <input 
+              ref={inputRef}
+              autoFocus 
+              type="text" 
+              value={text} 
+              onChange={handleChange} 
+              onKeyDown={handleEnter} 
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+              placeholder="Insert player name" 
+              className={`
+                w-full
+                block
+                border-2
+                px-6 py-4
+                text-2xl
+                shadow-md
+                focus:outline-none
+                transition-colors duration-300
+                ${darkMode 
+                  ? 'bg-gray-800 border-gray-700 text-white placeholder-gray-500' 
+                  : 'bg-white border-black-200 text-gray-900 placeholder-gray-400'}
+              `}
+            />
+            {showSuggestions && suggestions.length > 0 && (
+              <ul className={`absolute z-10 left-0 right-0 mx-4 border shadow-lg max-h-80 overflow-y-auto transition-colors duration-300 ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'}`}>
+                {suggestions.map((player) => (
+                  <li 
+                    key={player.id}
+                    onClick={() => handleSuggestionClick(player.name)}
+                    className={`px-6 py-3 cursor-pointer flex items-center gap-4 text-xl transition-colors duration-200 ${darkMode ? 'hover:bg-gray-700 text-white' : 'hover:bg-gray-100 text-gray-900'}`}
+                  >
+                    <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+                        <img 
+                            src={getPlayerImage(player.id)} 
+                            alt={player.name} 
+                            className="w-full h-full object-cover scale-150 origin-top" 
+                        />
+                    </div>
+                    <span>{player.name}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
         )}
       </div>
 
