@@ -5,7 +5,6 @@ cs2dle is a daily guessing game for Counter-Strike 2 professional players. Test 
 **Note:** Currently, the player changes on every page refresh rather than daily.
 
 **Live Website:** [cs2dle.org](https://cs2dle.org)  
-**Repository:** [github.com/aaronfinnila/cs2dle](https://github.com/aaronfinnila/cs2dle)
 
 ## Features
 
