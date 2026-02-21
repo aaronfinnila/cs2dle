@@ -235,7 +235,7 @@ function App() {
             
             <div className={`space-y-6 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
               <p className="text-lg text-center">
-                Guess the mystery CS2 player! The player changes every day. Each guess reveals more clues to help you find the correct answer. The mystery player is from a current top 30 team, based on HLTV rankings.
+                Guess the mystery CS2 player! Each guess reveals more clues to help you find the correct answer. The mystery player is from a current top 30 team, based on HLTV rankings.
               </p>
 
               <div className={`p-4 rounded-lg ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
@@ -281,6 +281,9 @@ function App() {
                 </p>
                 <p className="italic">
                   * Note: Player ratings, Top 20 placements and Majors won are gathered manually and may be slightly outdated.
+                </p>
+                <p className="italic">
+                  * Data last updated on 1.2.2026
                 </p>
                 <p className="pt-2 text-center font-medium">
                   Built and maintained by <a href="https://github.com/aaronfinnila" target="_blank" className={`underline ${darkMode ? 'hover:text-blue-400' : 'hover:text-blue-500'}`}>Aaron Finnilä</a>

@@ -1,11 +1,8 @@
 # cs2dle
 
-cs2dle is a daily guessing game for Counter-Strike 2 professional players. Test your esports knowledge by guessing the pro player based on attributes like nationality, team, age, and role.
-
-**Note:** Currently, the player changes on every page refresh rather than daily.
+cs2dle is a guessing game for Counter-Strike 2 professional players. Test your esports knowledge by guessing the pro player based on attributes like nationality, team, age, and role.
 
 **Live Website:** [cs2dle.org](https://cs2dle.org)  
-**Repository:** [github.com/aaronfinnila/cs2dle](https://github.com/aaronfinnila/cs2dle)
 
 ## Features
 
