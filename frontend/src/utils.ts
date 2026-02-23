@@ -57,6 +57,8 @@ export function getPlayerAge(age: number): any {
 export function getPlayerImage(id: number): string {
   if (id === 0) {
     return silhouette
+  } else if (`${baseUrl}/players/${id}/image` === null) {
+    return silhouette
   } else {
     return `${baseUrl}/players/${id}/image`
   }

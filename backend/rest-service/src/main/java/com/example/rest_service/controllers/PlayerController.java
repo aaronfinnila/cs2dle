@@ -119,7 +119,7 @@ public class PlayerController {
     }
 
     @PatchMapping("/{name}/{rating}_{majors}_{top20}")
-    public ResponseEntity<PlayerDto> getPlayerId(@PathVariable String name, @PathVariable Float rating, @PathVariable Integer majors, @PathVariable Integer top20) {
+    public ResponseEntity<PlayerDto> updatePlayerData(@PathVariable String name, @PathVariable Float rating, @PathVariable Integer majors, @PathVariable Integer top20) {
         Player player = playerRepository.findByName(name).orElseThrow();
         if (player == null) {
             return ResponseEntity.notFound().build();

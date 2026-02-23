@@ -39,7 +39,7 @@ function App() {
   
   const inputRef = useRef<HTMLInputElement>(null)
   const prevText = useRef("")
-  const rollPlayerId = () => Math.floor(Math.random() * 110)
+  const rollPlayerId = () => Math.floor(Math.random() * allPlayers.length)
   const [correctPlayerId] = useState(rollPlayerId)
 
   // api url fixed
@@ -53,7 +53,6 @@ function App() {
     }, 50)
   }
 
-  // Save theme preference to localStorage
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode))
   }, [darkMode])

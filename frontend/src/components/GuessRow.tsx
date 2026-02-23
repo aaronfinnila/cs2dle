@@ -52,7 +52,7 @@ export const GuessRow = ({ guess, target, darkMode }: GuessRowProps) => {
     return (
         <div className={`flex gap-2 mt-6 w-full max-w-7xl mx-auto items-center text-3xl h-40 transition-colors duration-300 min-w-max ${darkMode ? 'text-gray-900' : 'text-gray-900'}`}>
             <div className={`${getAnimClass(0)} w-72 shrink-0`}>
-                 <img className="h-40 w-72 object-fill" src={getPlayerImage(guess.id)}/>
+                 <img className="h-40 w-72 object-fill" src={getPlayerImage(guess.id) || "/dist/assets/questionmark.png"}/>
             </div>
             
             <div className={`${getAnimClass(1)} w-24 h-full shrink-0`}>
