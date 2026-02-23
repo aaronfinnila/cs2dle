@@ -273,7 +273,8 @@ function App() {
               <div className={`text-sm space-y-2 border-t pt-4 ${darkMode ? 'text-gray-400 border-gray-600' : 'text-gray-500 border-gray-200'}`}>
                 <p>
                   <strong>Data Sources:</strong> Mainly <a href="https://liquipedia.net/counterstrike/" target="_blank" className={`underline ${darkMode ? 'hover:text-blue-400' : 'hover:text-blue-500'}`}>Liquipedia</a>. 
-                  Rating, Top 20 placements, and Majors won are from <a href="https://www.hltv.org/" target="_blank" className={`underline ${darkMode ? 'hover:text-blue-400' : 'hover:text-blue-500'}`}>HLTV</a>.
+                  Rating, Top 20 placements, and Majors won are from <a href="https://www.hltv.org/" target="_blank" className={`underline ${darkMode ? 'hover:text-blue-400' : 'hover:text-blue-500'}`}>HLTV</a>,
+                  last updated on 23.2.2026. Rating is based on past 3 months.
                 </p>
                 <p>
                   <strong>Images:</strong> Sourced from <a href="https://liquipedia.net/counterstrike/" target="_blank" className={`underline ${darkMode ? 'hover:text-blue-400' : 'hover:text-blue-500'}`}>Liquipedia</a>.
@@ -281,11 +282,8 @@ function App() {
                 <p className="italic">
                   * Note: Player ratings, Top 20 placements and Majors won are gathered manually and may be slightly outdated.
                 </p>
-                <p className="italic">
-                  * Data last updated on 1.2.2026
-                </p>
                 <p className="pt-2 text-center font-medium">
-                  Built and maintained by <a href="https://github.com/aaronfinnila" target="_blank" className={`underline ${darkMode ? 'hover:text-blue-400' : 'hover:text-blue-500'}`}>Aaron Finnilä</a>
+                  Built and maintained by <a href="https://github.com/aaronfinnila/cs2dle" target="_blank" className={`underline ${darkMode ? 'hover:text-blue-400' : 'hover:text-blue-500'}`}>Aaron Finnilä</a>
                 </p>
               </div>
             </div>
