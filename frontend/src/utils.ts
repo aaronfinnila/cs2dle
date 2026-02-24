@@ -1,6 +1,5 @@
 import countries from "i18n-iso-countries"
 import en from "i18n-iso-countries/langs/en.json"
-import silhouette from '/assets/silhouette.png'
 
 countries.registerLocale(en);
 
@@ -15,11 +14,9 @@ export function countryCodeToFlag(code: string): string {
 }
 
 export function countryNameToFlag(name: string): string | null {
-  // If it's already a 2-letter code (like "EE"), use it directly
   if (name.length === 2) {
     return countryCodeToFlag(name);
   }
-  // Otherwise, try to get the code from the country name
   const code = countries.getAlpha2Code(name, "en");
   return code ? countryCodeToFlag(code) : null;
 }
@@ -54,11 +51,9 @@ export function getPlayerAge(age: number): any {
   }
 }
 
-export function getPlayerImage(id: number): string {
+export function getPlayerImage(id: number): string | null {
   if (id === 0) {
-    return silhouette
-  } else if (`${baseUrl}/players/${id}/image` === null) {
-    return silhouette
+    return null
   } else {
     return `${baseUrl}/players/${id}/image`
   }
@@ -110,20 +105,17 @@ export function getTop20Arrows(guessTop20: number, correctTop20: number): string
     return ""
   }
   
-  // Handle N/A (0) as the worst possible ranking
-  // If guess is N/A (0) and correct is not, guess is worse
   if (guessTop20 === 0 && correctTop20 !== 0) {
-    return "↑" // Need a better player
+    return "↑"
   }
-  // If correct is N/A (0) and guess is not, guess is better
+
   if (correctTop20 === 0 && guessTop20 !== 0) {
-    return "↓" // Need a worse player
+    return "↓"
   }
   
-  // For normal rankings (1-20): lower number is better
   if (guessTop20 < correctTop20) {
-    return "↓" // Guessed too good, need worse player
+    return "↓"
   } else {
-    return "↑" // Guessed too bad, need better player
+    return "↑"
   }
 }

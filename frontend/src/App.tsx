@@ -39,23 +39,12 @@ function App() {
   
   const inputRef = useRef<HTMLInputElement>(null)
   const prevText = useRef("")
-  const rollPlayerId = () => Math.floor(Math.random() * allPlayers.length)
-  const [correctPlayerId] = useState(rollPlayerId)
-
+  
   // api url fixed
   const baseUrl = import.meta.env.VITE_API_URL;
   const apiKey = import.meta.env.VITE_API_KEY;
 
-  const handleCloseAbout = () => {
-    setShowAbout(false)
-    setTimeout(() => {
-      inputRef.current?.focus()
-    }, 50)
-  }
-
-  useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(darkMode))
-  }, [darkMode])
+  const [correctPlayerId, setCorrectPlayerId] = useState(0)
 
   useEffect(() => {
     fetch(`${baseUrl}/players`, {
@@ -64,7 +53,13 @@ function App() {
       }
     })
       .then(res => res.json())
-      .then((data: Player[]) => setAllPlayers(data))
+      .then((data: Player[]) => {
+        setAllPlayers(data)
+        if (data.length > 0) {
+            const randomIndex = Math.floor(Math.random() * data.length)
+            setCorrectPlayerId(data[randomIndex].id)
+        }
+      })
       .catch(err => console.error("Failed to load players for autocomplete", err))
   }, [])
 
@@ -100,7 +95,10 @@ function App() {
     })
       .then(res => {
         if (!res.ok) {
-          setPlayerId(rollPlayerId)
+           if (allPlayers.length > 0) {
+            const randomIndex = Math.floor(Math.random() * allPlayers.length)
+            setPlayerId(allPlayers[randomIndex].id)
+          }
         }
       return res.json()})
       .then((data: Player) => {
@@ -297,6 +295,9 @@ function App() {
           key={correctGuessed ? 'revealed' : 'silhouette'}
           className={`block mx-auto h-96 w-full object-fill ${correctGuessed ? 'animate-fade-in' : ''}`} 
           src={`${correctGuessed ? getPlayerImage(playerId) : silhouette}`}
+          onError={(e) => {
+            e.currentTarget.src = silhouette
+          }}
         />
       </div>
       <div className={`transition-all duration-1000 ${correctGuessed ? 'opacity-100 max-h-screen' : 'opacity-0 max-h-0 overflow-hidden'}`}>
@@ -412,9 +413,12 @@ function App() {
                   >
                     <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
                         <img 
-                            src={getPlayerImage(player.id)} 
+                            src={getPlayerImage(player.id) || silhouette} 
                             alt={player.name} 
                             className="w-full h-full object-cover scale-150 origin-top" 
+                            onError={(e) => {
+                                e.currentTarget.src = silhouette
+                            }}
                         />
                     </div>
                     <span>{player.name}</span>
