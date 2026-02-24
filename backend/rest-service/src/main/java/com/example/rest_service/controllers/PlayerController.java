@@ -1,5 +1,7 @@
 package com.example.rest_service.controllers;
 
+import java.net.URI;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import com.example.rest_service.dtos.PlayerDto;
 import com.example.rest_service.entities.Player;
@@ -57,8 +60,13 @@ public class PlayerController {
         reqHeaders.setAccept(java.util.List.of(MediaType.ALL));
         reqHeaders.set(HttpHeaders.USER_AGENT, "Mozilla/5.0");
 
+        URI uri = UriComponentsBuilder
+            .fromUriString(player.getImage())
+            .build()
+            .encode()
+            .toUri();
         ResponseEntity<byte[]> upstream = restTemplate.exchange(
-                player.getImage(),
+                uri,
                 HttpMethod.GET,
                 new HttpEntity<>(reqHeaders),
                 byte[].class
