@@ -44,6 +44,17 @@ function App() {
   const baseUrl = import.meta.env.VITE_API_URL;
   const apiKey = import.meta.env.VITE_API_KEY;
 
+  const handleCloseAbout = () => {
+    setShowAbout(false)
+    setTimeout(() => {
+      inputRef.current?.focus()
+    }, 50)
+  }
+
+  useEffect(() => {
+    localStorage.setItem('darkMode', JSON.stringify(darkMode))
+  }, [darkMode])
+
   const [correctPlayerId, setCorrectPlayerId] = useState(0)
 
   useEffect(() => {
